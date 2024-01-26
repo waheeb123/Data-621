@@ -1,0 +1,64 @@
+---
+title: "exercises chapter 1 LMR"
+author: "Waheeb Algabri"
+date: "2024-01-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+**1.The dataset teengamb concerns a study of teenage gambling in Britain. Make a numerical and graphical summary of the data, commenting on any features that you
+ find interesting. Limit the output you present to a quantity that a busy reader would
+find sufficient to get a basic understanding of the data.**
+
+
+```{r}
+library(faraway)
+data(teengamb)
+head(teengamb)
+```
+
+```{r}
+summary(teengamb)
+```
+
+```{r}
+# Graphical summary
+par(mfrow=c(2, 3))
+hist(teengamb$income, main="Income Distribution", xlab="Income")
+hist(teengamb$verbal, main="Verbal Score Distribution", xlab="Verbal Score")
+hist(teengamb$gamble, main="Gambling Behavior Distribution", xlab="Gambling Behavior")
+boxplot(income ~ sex, data=teengamb, main="Income by Gender", xlab="Gender", ylab="Income")
+boxplot(gamble ~ sex, data=teengamb, main="Gambling Behavior by Gender", xlab="Gender", ylab="Gambling Behavior")
+```
+
+
+2.The dataset uswages is drawn as a sample from the Current Population Survey in
+1988. Make a numerical and graphical summary of the data as in the previous question
+
+```{r}
+data("uswages")
+head(uswages)
+```
+
+```{r}
+summary(uswages)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
