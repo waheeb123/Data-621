@@ -1,19 +1,25 @@
 ---
 title: "exercises chapter 1 LMR"
-author: "Waheeb Algabri"
-date: "2024-01-26"
-output: html_document
+author: "waheeb Algabri"
+output:
+  pdf_document: default
+  html_document:
+    highlight: pygments
+    theme: cerulean
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: console
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(openintro)
 ```
 
 
-**1.The dataset teengamb concerns a study of teenage gambling in Britain. Make a numerical and graphical summary of the data, commenting on any features that you
- find interesting. Limit the output you present to a quantity that a busy reader would
-find sufficient to get a basic understanding of the data.**
-
+**`1.The dataset teengamb concerns a study of teenage gambling in Britain. Make a numerical and graphical summary of the data, commenting on any features that you find interesting. Limit the output you present to a quantity that a busy reader would find sufficient to get a basic understanding of the data.`**
 
 ```{r}
 library(faraway)
@@ -35,9 +41,7 @@ boxplot(income ~ sex, data=teengamb, main="Income by Gender", xlab="Gender", yla
 boxplot(gamble ~ sex, data=teengamb, main="Gambling Behavior by Gender", xlab="Gender", ylab="Gambling Behavior")
 ```
 
-
-2.The dataset uswages is drawn as a sample from the Current Population Survey in
-1988. Make a numerical and graphical summary of the data as in the previous question
+2.The dataset uswages is drawn as a sample from the Current Population Survey in 1988. Make a numerical and graphical summary of the data as in the previous question
 
 ```{r}
 data("uswages")
@@ -48,17 +52,158 @@ head(uswages)
 summary(uswages)
 ```
 
+**2-The dataset uswages is drawn as a sample from the Current Population Survey in 1988. Make a numerical and graphical summary of the data as in the previous question.**
+
+```{r}
+head(uswages)
+```
+
+```{r}
+summary(uswages)
+
+```
+
+```{r}
+hist(uswages$wage, main="Wage Distribution", xlab="Wage")
+
+```
+
+```{r}
+boxplot(uswages$wage, main="Boxplot of Wage", ylab="Wage")
+
+```
+
+```{r}
+plot(uswages$exper, uswages$wage, main="Scatterplot of Wage vs Experience", xlab="Experience", ylab="Wage")
+
+```
+
+```{r}
+barplot(table(uswages$educ), main="Barplot of Education Levels", xlab="Education Level", ylab="Frequency")
+
+```
+
+```{r}
+ggplot(uswages, aes(x = exper, y = wage)) +
+  geom_point() +
+  labs(title = "Scatterplot of Wage vs Experience", x = "Experience", y = "Wage")
+
+```
+
+**3-The dataset 'prostate' is derived from a study involving 97 men diagnosed with prostate cancer, all of whom were scheduled to undergo a radical prostatectomy. Provide a numerical and graphical summary of the data, similar to the previous question.**
+
+```{r}
+head(prostate)
+```
+
+```{r}
+summary(prostate)
+
+```
+
+Histogram for lcavol:
+
+```{r}
+hist(prostate$lcavol, main="lcavol Distribution", xlab="lcavol")
+
+```
+
+Boxplot for lcavol:
+
+```{r}
+boxplot(prostate$lcavol, main="Boxplot of lcavol", ylab="lcavol")
+
+```
+
+Scatterplot for lcavol vs. lpsa:
+
+```{r}
+plot(prostate$lcavol, prostate$lpsa, main="Scatterplot of lcavol vs lpsa", xlab="lcavol", ylab="lpsa")
+
+```
+
+```{r}
+barplot(table(prostate$gleason), main="Barplot of Gleason Score", xlab="Gleason Score", ylab="Frequency")
+
+```
+
+```{r}
+
+ggplot(prostate, aes(x = lcavol, y = lpsa)) +
+  geom_point() +
+  labs(title = "Scatterplot of lcavol vs lpsa", x = "lcavol", y = "lpsa")
+
+```
+
+**4-The dataset sat comes from a study entitled “Getting What You Pay For: The Debate Over Equity in Public School Expenditures.” Make a numerical and graphical summary of the data as in the first question.**
+
+```{r}
+head(sat)
+```
+
+```{r}
+summary(sat)
+
+```
+
+```{r}
+hist(sat$verbal, main="Verbal Score Distribution", xlab="Verbal Score")
+hist(sat$math, main="Math Score Distribution", xlab="Math Score")
+hist(sat$total, main="Total Score Distribution", xlab="Total Score")
+
+```
+
+```{r}
+boxplot(sat$expend, main="Boxplot of Expenditure", ylab="Expenditure")
+
+```
+
+Scatterplot of Expenditure vs Salary
+
+```{r}
+plot(sat$expend, sat$salary, main="Scatterplot of Expenditure vs Salary", xlab="Expenditure", ylab="Salary")
+
+```
+
+```{r}
+ggplot(sat, aes(x = expend, y = salary)) +
+  geom_point() +
+  labs(title = "Scatterplot of Expenditure vs Salary", x = "Expenditure", y = "Salary")
+
+```
+
+**5-The dataset divusa contains data on divorces in the United States from 1920 to 1996. Make a numerical and graphical summary of the data as in the first question.**
+
+```{r}
+head(divusa)
+```
+```{r}
+summary(divusa)
+```
+
+```{r}
+hist(divusa$divorce, main="Divorces Distribution", xlab="Number of Divorces")
+
+```
+
+```{r}
+plot(divusa$year, divusa$divorce, type="l", main="Divorces Over Years", xlab="Year", ylab="Number of Divorces")
+
+```
+
+```{r}
+plot(divusa$unemployed, divusa$femlab, main="Scatterplot of Unemployed vs Femlab", xlab="Unemployed", ylab="Femlab")
+
+```
 
 
+```{r}
+library(ggplot2)
+ggplot(divusa, aes(x = unemployed, y = femlab)) +
+  geom_point() +
+  labs(title = "Scatterplot of Unemployed vs Femlab", x = "Unemployed", y = "Femlab")
 
-
-
-
-
-
-
-
-
+```
 
 
 
