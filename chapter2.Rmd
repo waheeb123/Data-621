@@ -1,0 +1,192 @@
+---
+title: "Chapter-2-Simple linear regression"
+author: "Waheeb Algabri"
+date: "2024-02-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### 1.The dataset teengamb concerns a study of teenage gambling in Britain. Fit a regression model with the expenditure on gambling as the response and the sex, status, income and verbal score as predictors.
+
+```{r}
+library(faraway)
+data <- (teengamb)
+head(data)
+```
+
+
+
+**(a) What percentage of variation in the response is explained by these predictors?**
+
+```{r}
+# Assuming 'teengamb' is your dataset
+# Fit a regression model
+model <- lm(gamble ~ sex + status + income + verbal, data = teengamb)
+
+
+# Print the summary of the model
+summary(model)
+
+```
+
+```{r}
+# Extract and print R-squared
+r_squared <- summary(model)$r.squared
+cat("Percentage of variation explained by predictors:", round(r_squared * 100, 2), "%\n")
+```
+
+
+**(b) Which observation has the largest (positive) residual? Give the case number.**
+
+```{r}
+# Extract residuals
+residuals <- residuals(model)
+
+# Find the index of the observation with the largest positive residual
+max_residual_index <- which.max(residuals)
+
+# Print the case number
+cat("Observation with the largest positive residual (case number):", max_residual_index, "\n")
+
+```
+
+
+**(c) Compute the mean and median of the residuals.**
+
+```{r}
+# Compute mean and median of residuals
+mean_residual <- mean(residuals)
+median_residual <- median(residuals)
+
+# Print the results
+cat("Mean of residuals:", mean_residual, "\n")
+cat("Median of residuals:", median_residual, "\n")
+```
+
+
+**(d) Compute the correlation of the residuals with the fitted values.**
+```{r}
+# Extract residuals and fitted values
+residuals <- residuals(model)
+fitted_values <- fitted(model)
+
+# Compute the correlation
+correlation_resid_fitted <- cor(residuals, fitted_values)
+
+# Print the result
+cat("Correlation of residuals with fitted values:", correlation_resid_fitted, "\n")
+
+```
+
+
+**(e) Compute the correlation of the residuals with the income**.
+
+```{r}
+# Extract residuals and income
+residuals <- residuals(model)
+income <- teengamb$income
+# Compute the correlation
+correlation_resid_income <- cor(residuals, income)
+
+# Print the result
+cat("Correlation of residuals with income:", correlation_resid_income, "\n")
+```
+
+
+**(f) For all other predictors held constant, what would be the difference in predicted
+expenditure on gambling for a male compared to a female?**
+
+```{r}
+# Extract coefficients
+coefficients <- coef(model)
+
+# Find the coefficient for 'sex'
+coefficient_sex <- coefficients['sex']
+
+# Print the difference in predicted expenditure for male compared to female
+cat("Difference in predicted expenditure for male compared to female:", coefficient_sex, "\n")
+```
+
+### 2. The dataset uswages is drawn as a sample from the Current Population Survey in 1988. Fit a model with weekly wages as the response and years of education and experience as predictors. Report and give a simple interpretation to the regression coefficient for years of education. Now fit the same model but with logged weekly wages. Give an interpretation to the regression coefficient for years of education. Which interpretation is more natural?
+
+```{r}
+uswages_1 <-(uswages)
+head(uswages)
+```
+
+```{r}
+# Fit a regression model with weekly wages as the response
+model_wages <- lm(wage ~ educ + exper, data = uswages_1)
+
+# Print the summary of the model
+summary(model_wages)
+
+```
+
+we'll fit the same model but with logged weekly wages and interpret the regression coefficient for years of education.
+
+```{r}
+# Fit a regression model with logged weekly wages as the response
+model_logged_wages <- lm(log(wage) ~ educ + exper, data = uswages_1)
+
+# Print the summary of the model
+summary(model_logged_wages)
+
+```
+
+```{r}
+# Interpretation of the coefficient for 'educ' in the logged model
+coefficient_logged = coef(model_logged_wages)["educ"]
+percentage_change = (exp(coefficient_logged) - 1) * 100
+cat("Percentage change in weekly wages for a one-unit increase in years of education:", percentage_change, "%\n")
+
+```
+
+
+### Exersises in extended linear model with R chapter 2
+
+**1. The dataset wbca comes from a study of breast cancer in Wisconsin. There are 681 cases of potentially cancerous tumors of which 238 are actually malignant. Determining whether a tumor is really malignant is traditionally determined by an invasive surgical procedure. The purpose of this study was to determine whether a new procedure called fine needle aspiration, which draws only a small sample of tissue, could be effective in determining tumor status.**
+
+```{r}
+plot(Class ~ BNucl, wbca)
+```
+
+
+```{r}
+# ii. Create a factor version of the response and produce boxplots
+wbca$ClassFactor <- factor(wbca$Class, levels = c(0, 1), labels = c("Benign", "Malignant"))
+boxplot(BNucl ~ ClassFactor, data = wbca, xlab = "Class", ylab = "BNucl", main = "Boxplot of BNucl by Class")
+
+
+# iv. Produce a version of the interleaved histogram
+par(mfrow = c(1, 2))
+hist(wbca$BNucl[wbca$ClassFactor == "Benign"], col = "lightblue", main = "Benign Tumors", xlab = "BNucl")
+hist(wbca$BNucl[wbca$ClassFactor == "Malignant"], col = "salmon", main = "Malignant Tumors", xlab = "BNucl")
+
+# c. Fit a binary regression with Class as the response and the other nine variables as predictors
+binary_model <- glm(Class ~ Adhes + BNucl + Chrom + Epith + Mitos + NNucl + Thick + UShap + USize, data = wbca, family = binomial)
+summary(binary_model)
+
+# d. Use AIC for variable selection
+selected_model <- step(binary_model, direction = "both", trace = FALSE)
+summary(selected_model)
+
+# e. Compute number of errors with the reduced model
+predicted_probs <- predict(selected_model, type = "response")
+predicted_class <- ifelse(predicted_probs > 0.5, 1, 0)
+conf_matrix <- table(predicted_class, wbca$Class)
+errors <- sum(conf_matrix[c(2, 3)])  # Sum of false positives and false negatives
+cat("Number of errors:", errors, "\n")
+```
+
+
+
+
+
+
+
+
