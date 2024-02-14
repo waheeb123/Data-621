@@ -1,13 +1,13 @@
 ---
 title: "Homework-1"
-author: "waheeb Algabri"
+author: "Waheeb Algabri, Joe Garcia, Lwin Shwe, Mikhail Broomes"
 output:
+  pdf_document: default
   html_document:
     highlight: pygments
     theme: cerulean
     toc: true
     toc_float: true
-  pdf_document: default
 editor_options: 
   chunk_output_type: console
 ---
@@ -39,7 +39,7 @@ library(modelr)
 First, let's read in the provided dataset.
 
 ```{r data-read-in, echo=FALSE, message=FALSE}
-df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/moneyball-training-data.csv")
+df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-1/moneyball-training-data.csv")
 df <- data.frame(df)
 ```
 
@@ -253,7 +253,6 @@ lm_all_reduced <- step(lm_all, direction="backward", trace = 0)
 summary(lm_all_reduced)
 ```
 
-<<<<<<< HEAD:src/homework1-data621.Rmd
 The $R^2$ for this model is not much improved. Let's check for multicollinearity between variables. 
 
 ***
@@ -513,7 +512,7 @@ The diagnostic plots don't seem to indicate a violation of the assumptions as th
 First we read in our [evaluation data](https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/moneyball-evaluation-data.csv).
 
 ```{r echo=FALSE}
-eval_data_url <- "https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/moneyball-evaluation-data.csv"
+eval_data_url <- "https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-1/moneyball-evaluation-data.csv"
 
 eval <- read.csv(eval_data_url)
 ```
