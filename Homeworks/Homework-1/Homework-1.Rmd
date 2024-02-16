@@ -118,6 +118,7 @@ print(glue("The standard deviation for number of wins in a season is {round(sd_w
 ```
 
 
+
 Let's also make a histogram of the `TARGET_WINS` variable. This should give us a sense of the distribution of wins for teams/seasons in our population.
 
 ```{r wins-hist, echo=FALSE, message=FALSE, fig.show='hold', fig.align='center', out.width='85%'}
@@ -147,8 +148,10 @@ kable(cMeans, format = "simple")
 
 Let's take a closer look at all the summary statistics for these variables and identify any data completeness issues:
 
-```{r summary-stats, echo=F}
-summary(train)
+
+```{r, echo=FALSE}
+library(knitr)
+kable(summary(train))
 ```
 
 ```{r}
@@ -159,7 +162,7 @@ summary_data <- summary(train)
 summary_df <- as.data.frame(summary_data)
 
 # Print the data frame
-summary_df
+kable(summary_df)
 
 
 ```
