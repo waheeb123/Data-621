@@ -1,0 +1,262 @@
+---
+title: "blog-1"
+author: "Waheeb Algabri"
+output:
+  html_document:
+    highlight: pygments
+    theme: cerulean
+    toc: true
+    toc_float: true
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(openintro)
+```
+
+
+
+## Introduction
+
+In financial analysis, simple regression models serve as powerful tools to understand the linear relationship between two variables. This research delves into a fundamental aspect of financial modeling: the Market Model. The Market Model posits that a stock's anticipated return is determined by its alpha coefficient (intercept) and its market beta coefficient (slope) multiplied by the market return. This study aims to estimate these coefficients through a simple linear regression model, using monthly returns of Alfa (ALFAA.MX) and the IPCyC (^MXX) from January 2015 to December 2019.
+
+## Simple regression model
+
+In a simple regression model, we aim to grasp the linear connection between two variables. Here, one variable, known as the independent variable `(IV)`, is considered a predictor of the other variable, called the dependent variable `(DV)`
+
+Let's delve into a simple regression model using the Market Model.
+
+According to the Market Model, the anticipated return of a stock is determined by its alpha coefficient `(b0)` plus its market beta coefficient `(b1)` multiplied by the market return. Mathematically, this is expressed as:
+
+$E[Ri]=α+β(RM)$
+
+We can express the same equation using BO as alpha, and `B1` as market beta:
+
+$E[Ri]=β0+β1(RM)$
+
+
+We can estimate the alpha and market beta coefficient by running a simple linear regression model specifying that the market return is the independent variable and the stock return is the dependent variable. It is strongly recommended to use continuously compounded returns instead of simple returns to estimate the market regression model. The market regression model can be expressed as:
+
+$r(i,t)=β0+β1∗r(M,t)+εt$
+
+Where:
+
+$εt$ is the error at time $t$. Thanks to the Central Limit Theorem, this error behaves like a Normal distributed random variable $∼ N(0, σε)$; the error term is expected to have $mean=0$ and a specific standard deviation (also called volatility).
+
+$r(i,t)$ is the return of the stock $i$ at time $t$.
+
+$r(M,t)$ is the market return at time $t$
+
+$β0$ and $β1$ are coefficients or constants
+
+## Data download
+
+Now, let's dive into utilizing actual data to gain a deeper understanding of this model. Please download monthly prices for Alfa `(ALFAA.MX)` and the `IPCyC` `(^MXX)` from Yahoo Finance, spanning from January 2015 to December 2019. We'll use `ALFAA.MX `and the `IPCyC` to build our own market model. Here's what you need to do:
+```{r}
+# Load package quantmod
+library(quantmod)
+
+# Download the data
+getSymbols(c("ALFAA.MX", "^MXX"), from = "2015-01-01", to = "2019-12-31", 
+           periodicity = "monthly", src = "yahoo")
+
+```
+
+
+```{r, echo=FALSE}
+library(knitr)
+kable(head(ALFAA.MX, 5), caption = "First 5 rows of ALFAA.MX")
+```
+
+```{r,echo=FALSE}
+library(knitr)
+kable(head(MXX, 5), caption = "First 5 rows of ALFAA.MX")
+```
+
+
+
+```{r}
+# Calculate continuously returns for the stock and the market index
+r_ALFAA <- na.omit(diff(log(ALFAA.MX$ALFAA.MX.Adjusted))) #I dropped the na's
+# For the IPC:
+r_MXX <- na.omit(diff(log(MXX$MXX.Adjusted)))
+
+# I merge them into the same object using the merge function:
+all_rets <- merge(r_ALFAA, r_MXX)
+
+#I renamed the columns:
+colnames(all_rets) <- c("ALFAA", "MXX")
+
+# Take a look at your objects!
+```
+
+
+```{r, echo=FALSE}
+library(knitr)
+
+# Print the object using knitr
+kable(all_rets, caption = "Returns for ALFAA.MX and MXX")
+
+```
+
+
+```{r, echo=FALSE}
+# Print the object using knitr
+kable(head(all_rets,5), caption = "Returns for ALFAA.MX and MXX")
+
+```
+
+### Visualize the relationship
+
+Create a scatter plot with the `IPCyC` returns as the `independent variable (X)` and the stock return as the `dependent variable (Y)`. Additionally, include a line that best represents the relationship between the stock returns and the market returns.
+
+```{r}
+plot.default(x=all_rets$MXX,y=all_rets$ALFAA)
+abline(lm(all_rets$ALFAA ~ all_rets$MXX),col='red')
+```
+As you can see, I've designated the Market returns for the X-axis and Alfa returns for the Y-axis. In the market model, the independent variable is the market returns, while the dependent variable is the stock return.
+
+Graphs can sometimes be misleading. In this instance, the range of the X-axis and Y-axis differs, so it's preferable to create a graph where both the X and Y ranges have equal distances. Additionally, we'll include a line that more accurately represents the relationship between the stock returns and the market returns.
+
+```{r}
+plot.default(x=all_rets$MXX,y=all_rets$ALFAA, xlim=c(-0.30,0.30) )
+abline(lm(all_rets$ALFAA ~ all_rets$MXX),col='red')
+```
+
+**What does the plot indicate?**
+
+In this case, the regression line is the most accurate representation of the relationship between the market return and the stock return.
+
+I observe a positive correlation between market returns and Alfa returns. As market returns rise, Alfa returns tend to increase as well. It appears that for every 1% increase in market returns, Alfa returns increase slightly more than 1%, as indicated by the slope of the line, which appears to be slightly steeper than 45 degrees. When the angle of the regression line (relative to the X-axis) is 45 degrees, the slope equals 1.
+
+
+## Running the market regression model
+
+Utilizing the lm() function, run a simple regression model to analyze how the monthly returns of the stock are associated with the market return. The first parameter of the function should be the DEPENDENT VARIABLE (in this case, the stock return), and the second parameter should be the INDEPENDENT VARIABLE, also known as the EXPLANATORY VARIABLE (in this case, the market return).
+
+What you'll obtain is referred to as The Market Regression Model. You're investigating how market returns can elucidate stock returns from January 2015 to August 2020.
+
+Assign your market model to an object named "reg".
+
+```{r}
+# Run the regression with the lm function:
+reg <- lm(r_ALFAA ~ r_MXX)
+# The first variable is the Dependent variable (the stock return), and 
+#   the variable after the ~ is the Independent variable or explanatory
+#   variable (the market return)
+
+# I get the summary of the regression output into a variable
+sumreg<- summary(reg)
+# I display the main results of the regression:
+sumreg
+```
+
+To calculate the sum of squares of total deviations from the mean of Y (SST), follow these steps:
+
+Compute a variable representing the mean of the dependent variable Y (in this scenario, the stock return):
+```{r}
+meanY = mean(r_ALFAA)
+print(meanY)
+```
+
+Calculate a variable with the squared deviations of each value of Y (stock returns) from its mean, and get the sum of these values:
+```{r}
+# Calculate a vector for the squared deviations of each value of stock returns
+#   from its mean:
+squared_deviations_1 <- (r_ALFAA - meanY)^2
+# Now I get the sum of these squared deviations
+SST = sum(squared_deviations_1)
+SST
+```
+
+To calculate the sum of squares of the regression model (SSRM), you need to utilize the predicted values of the regression model, also known as the fitted values of the model. These values are stored in the regression object "reg" that we created with the lm function.
+
+The fitted (predicted) values of the regression model are stored in the fitted.values attribute of the regression object:
+
+```{r}
+fittedY = reg$fitted.values
+fittedY
+```
+
+Now you can get the SSRM with a similar process we followed to get the SST. Remember that you have to get the sum of squared deviations of each fitted value from the mean of Y.
+
+```{r}
+# Calculate a vector for the squared deviations of each fitted value 
+#   from the Y mean:
+squared_deviations_2 = (fittedY-meanY)^2
+# Sum these squared deviations to get SSRM
+SSRM = sum(squared_deviations_2)
+SSRM
+```
+
+In a similar process, you can get the sum of squares for the errors (SSE). To get the SSE you have to get the sum of squares of the difference between the real values of Y (stock return) and the predicted values (fittedY).
+
+You can compare if your calculations of sum of squares are correct by running the ANOVA function as follows:
+```{r}
+anova(reg)
+```
+The standard errors of the beta coefficients (b0 and b1) indicate the variability or uncertainty associated with these coefficients in the regression model. Specifically:
+The standard error of b0 is the standard deviation of b0, and the standard error of b1 is the standard deviation of b1.
+In this case, the values are as follows:
+The value of b0 is -0.0102618, with a standard error of 0.0066429.
+The value of b1 is 1.1688907, with a standard error of 0.1877383.
+The standard error of a coefficient provides information about the expected standard deviation (average variation) of the coefficient in the near future. Since regression coefficients can change over time, the standard error indicates how much the coefficient might deviate from its mean value in the future.
+Regression coefficients, such as b0 and b1, are linear combinations of random variables. According to the Central Limit Theorem, these coefficients will behave like normally distributed variables. Therefore, we can use the standard error of a coefficient to construct its 95% confidence interval.
+
+**What is the total sum of squares (SST) ?**
+
+We can calculate the sum of squares of a regression model using the function anova. To do this, we need to apply the function anova to a regression object. Here's how we can do it in this case:
+```{r}
+sumsquares <- anova(reg)
+sumsquares
+```
+In the column labeled "Sum Sq," we can observe:
+A) The sum of squares of the regression model (SSRM), which in this case equals 0.1008404.
+B) The sum of squares of the errors or residuals (SSE), which in this case equals 0.1482748.
+
+The total sum of squares (SST) is equal to `SSRM + SSE`. Let me explain what each of these sum of squares represents:
+
+The SST, or Sum of Total Squares, represents the total variability in the dependent variable (Y). It measures how much the observed values of Y deviate from the mean of Y.
+
+If we express the general formula for a regression line as :
+
+$E[Yi]=b0+b1(Xi)$
+
+where i goes from 1 to N observations, then:
+
+$SST=∑i=1N(Yi−Y¯)^2$
+
+Then, SST is the sum of all squared distances from each point $Yi$ to the mean of $Y (Y¯)$
+
+We consider $Y¯$ as the UNCONDITIONAL mean, since it is independent to the values of $X$
+
+With the anova function, the SST will be equal to the sum of the SSRM and SSE. In this case, SST = 0.2491151.
+
+We can decompose SST in two parts: the sum of squared distances that are explained by the regression model (Sum of Squared Regression Model), and the sum of squared distances that are NOT explained by the regression model (Sum of Squared Errors):
+
+$SST = SSR + SSE$
+
+The SSE is the sum of squared errors:
+
+$SSE=∑i=1N(Yi−E[Y])^2$
+
+The distances from Yi to $E[Yi]$ are the distances that cannot be explained with the regression model.
+
+The SSR is the sum of the squared distances from the unconditional mean $(Y¯)$ to the expected mean according to the regression model:
+
+$SSRM=∑i=1N(E[Y]−Y¯)^2$
+
+The coefficient of determination of the regression model R-squared is defined as:
+
+$R^2=SSRM / SST$
+
+$R^2$ is the percentage of variance of Y that is explained by the variance of X. In other words, it gives us a % of explanation of the variation of Y given variations of X.
+
+
+## Conclusion
+
+this blog elucidates the applicability of the Market Model in understanding the relationship between market returns and individual stock returns. The estimated alpha and beta coefficients provide valuable insights for investors seeking to gauge the sensitivity of a stock's performance to market movements. Future research endeavors could explore alternative regression methodologies and incorporate additional explanatory variables to enhance the predictive accuracy of financial models.
