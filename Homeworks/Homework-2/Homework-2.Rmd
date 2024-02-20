@@ -1,0 +1,21 @@
+---
+title: "Homework-2"
+author: "Waheeb Algabri, Joe Garcia, Lwin Shwe, Mikhail Broomes"
+output:
+  html_document:
+    highlight: pygments
+    theme: cerulean
+    toc: true
+    toc_float: true
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(openintro)
+```
+
+
