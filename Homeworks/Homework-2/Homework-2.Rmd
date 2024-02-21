@@ -18,4 +18,16 @@ library(tidyverse)
 library(openintro)
 ```
 
+```{r cars}
+df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-2/classification-output-data.csv")
+df <- data.frame(df)
+head(df)
+```
 
+```{r}
+key_col <- df %>% 
+  select("scored.class","class","scored.probability")
+
+# checking for missing values 
+colSums(is.na(key_col))
+```
