@@ -1294,6 +1294,107 @@ ul.task-list{list-style: none;}
 
 
 
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -1462,7 +1563,137 @@ Broomes</h4>
 </div>
 
 
-
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(geomtextpath)</span></code></pre></div>
+<div id="overview" class="section level2">
+<h2>Overview:</h2>
+<p>This homework assignment will guide you through different
+classification metrics. Your task involves developing functions in R to
+perform diverse calculations. Furthermore, you’ll explore functions
+within packages to achieve comparable results. Lastly, you’ll generate
+graphical representations useful for evaluating classification model
+outputs, including those from binary logistic regression.</p>
+</div>
+<div id="supplemental-material" class="section level2">
+<h2>Supplemental Material:</h2>
+<ul>
+<li><p>Applied Predictive Modeling, Ch. 11 (provided as a PDF
+file).</p></li>
+<li><p>Web tutorials: <a href="http://www.saedsayad.com/model_evaluation_c.htm" class="uri">http://www.saedsayad.com/model_evaluation_c.htm</a></p></li>
+</ul>
+</div>
+<div id="deliverables-100-points" class="section level2">
+<h2>Deliverables (100 Points):</h2>
+<ul>
+<li>Upon following the instructions below, use your created R functions
+and the other packages to generate the classification metrics for the
+provided data set. A write-up of your solutions submitted in PDF
+format.</li>
+</ul>
+</div>
+<div id="instructions" class="section level2">
+<h2>Instructions:</h2>
+<p>Complete each of the following steps as instructed:</p>
+<ol style="list-style-type: decimal">
+<li>Download the classification output data set (attached in Blackboard
+to the assignment).</li>
+</ol>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>class_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">read.csv</span>(<span class="st">&#39;https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-2/classification-output-data.csv&#39;</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">head</span>(class_df)</span></code></pre></div>
+<pre><code>##   pregnant glucose diastolic skinfold insulin  bmi pedigree age class
+## 1        7     124        70       33     215 25.5    0.161  37     0
+## 2        2     122        76       27     200 35.9    0.483  26     0
+## 3        3     107        62       13      48 22.9    0.678  23     1
+## 4        1      91        64       24       0 29.2    0.192  21     0
+## 5        4      83        86       19       0 29.3    0.317  34     0
+## 6        1     100        74       12      46 19.5    0.149  28     0
+##   scored.class scored.probability
+## 1            0         0.32845226
+## 2            0         0.27319044
+## 3            0         0.10966039
+## 4            0         0.05599835
+## 5            0         0.10049072
+## 6            0         0.05515460</code></pre>
+<p>The dataset provided includes several attributes to predict whether
+or not a patient has diabetes.</p>
+<ol start="2" style="list-style-type: decimal">
+<li><p>The data set has three key columns we will use:</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>class: the actual class for the observation</p></li>
+<li><p>scored.class: the predicted class for the observation (based on a
+threshold of <span class="math inline">\(0.5\)</span>)</p></li>
+<li><p>scored.probability: the predicted probability of success for the
+observation</p></li>
+</ol></li>
+</ol>
+<p>Use the table() function to get the raw confusion matrix for this
+scored dataset. Make sure you understand the output. In particular, do
+the rows represent the actual or predicted class? The columns?</p>
+<ol start="3" style="list-style-type: decimal">
+<li>Write a function that takes the data set as a dataframe, with actual
+and predicted classifications identified, and returns the accuracy of
+the predictions.</li>
+</ol>
+<p><span class="math display">\[Accuracy = \frac{TP + TN}{TP + FP + TN +
+FN}\]</span></p>
+<ol start="4" style="list-style-type: decimal">
+<li>Write a function that takes the data set as a dataframe, with actual
+and predicted classifications identified, and returns the classification
+error rate of the predictions.</li>
+</ol>
+<p><span class="math display">\[Classification\text{ }Error\text{ }Rate
+= \frac{FP + FN}{TP + FP + TN + FN}\]</span></p>
+<ol start="5" style="list-style-type: decimal">
+<li>Write a function that takes the data set as a dataframe, with actual
+and predicted classifications identified, and returns the precision of
+the predictions.</li>
+</ol>
+<p><span class="math display">\[Precision = \frac{TP}{TP +
+FP}\]</span></p>
+<ol start="6" style="list-style-type: decimal">
+<li>Write a function that takes the data set as a dataframe, with actual
+and predicted classifications identified, and returns the sensitivity of
+the predictions. Sensitivity is also known as recall.</li>
+</ol>
+<p><span class="math display">\[Sensitivity = \frac{TP}{TP +
+FN}\]</span></p>
+<ol start="7" style="list-style-type: decimal">
+<li>Write a function that takes the data set as a dataframe, with actual
+and predicted classifications identified, and returns the specificity of
+the predictions.</li>
+</ol>
+<p><span class="math display">\[Specificity = \frac{TN}{TN +
+FP}\]</span></p>
+<ol start="8" style="list-style-type: decimal">
+<li>Write a function that takes the data set as a dataframe, with actual
+and predicted classifications identified, and returns the F1 score of
+the predictions.</li>
+</ol>
+<p><span class="math display">\[F1\text{ }Score = \frac{2 \times
+Precision \times Sensitivity}{Precision + Sensitivity}\]</span></p>
+<ol start="9" style="list-style-type: decimal">
+<li><p>Before we move on, let’s consider a question that was asked: What
+are the bounds on the F1 score? Show that the F1 score will always be
+between <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span>. (Hint: If <span class="math inline">\(0 &lt; a &lt; 1\)</span> and <span class="math inline">\(0 &lt; b &lt; 1\)</span> then <span class="math inline">\(ab &lt; a\)</span>.)</p></li>
+<li><p>Write a function that generates an ROC curve from a data set with
+a true classification column (class in our example) and a probability
+column (scored.probability in our example). Your function should return
+a list that includes the plot of the ROC curve and a vector that
+contains the calculated area under the curve (AUC). Note that I
+recommend using a sequence of thresholds ranging from 0 to 1 at 0.01
+intervals.</p></li>
+<li><p>Use your created R functions and the provided classification
+output data set to produce all of the classification metrics discussed
+above.</p></li>
+<li><p>Investigate the caret package. In particular, consider the
+functions confusionMatrix, sensitivity, and specificity. Apply the
+functions to the data set. How do the results compare with your own
+functions?</p></li>
+<li><p>Investigate the pROC package. Use it to generate an ROC curve for
+the data set. How do the results compare with your own
+functions?</p></li>
+</ol>
+</div>
 
 
 
