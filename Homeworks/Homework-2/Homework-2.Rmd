@@ -31,3 +31,8 @@ key_col <- df %>%
 # checking for missing values 
 colSums(is.na(key_col))
 ```
+
+```{r}
+table(key_col)
+```
+
