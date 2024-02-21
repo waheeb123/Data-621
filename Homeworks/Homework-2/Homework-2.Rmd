@@ -18,9 +18,28 @@ library(tidyverse)
 library(openintro)
 ```
 
+<<<<<<< HEAD
 ```{r warning = FALSE, message = FALSE}
 library(tidyverse)
 library(geomtextpath)
+=======
+```{r cars}
+df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-2/classification-output-data.csv")
+df <- data.frame(df)
+head(df)
+```
+
+```{r}
+key_col <- df %>% 
+  select("scored.class","class")
+
+# checking for missing values 
+colSums(is.na(key_col))
+```
+
+```{r}
+table(key_col)
+>>>>>>> fde25d59b6833b47d77c2352c4375a06049bf9af
 ```
 
 ## Overview:
