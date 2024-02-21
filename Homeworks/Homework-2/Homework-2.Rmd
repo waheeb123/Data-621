@@ -26,7 +26,7 @@ head(df)
 
 ```{r}
 key_col <- df %>% 
-  select("scored.class","class","scored.probability")
+  select("scored.class","class")
 
 # checking for missing values 
 colSums(is.na(key_col))
