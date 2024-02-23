@@ -1565,33 +1565,143 @@ Broomes</h4>
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-2/classification-output-data.csv&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(df)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">head</span>(df)</span></code></pre></div>
-<pre><code>##   pregnant glucose diastolic skinfold insulin  bmi pedigree age class
-## 1        7     124        70       33     215 25.5    0.161  37     0
-## 2        2     122        76       27     200 35.9    0.483  26     0
-## 3        3     107        62       13      48 22.9    0.678  23     1
-## 4        1      91        64       24       0 29.2    0.192  21     0
-## 5        4      83        86       19       0 29.3    0.317  34     0
-## 6        1     100        74       12      46 19.5    0.149  28     0
-##   scored.class scored.probability
-## 1            0         0.32845226
-## 2            0         0.27319044
-## 3            0         0.10966039
-## 4            0         0.05599835
-## 5            0         0.10049072
-## 6            0         0.05515460</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>key_col <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">&quot;scored.class&quot;</span>,<span class="st">&quot;class&quot;</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># checking for missing values </span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(key_col))</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(df))</span></code></pre></div>
+<table>
+<colgroup>
+<col width="9%" />
+<col width="8%" />
+<col width="10%" />
+<col width="9%" />
+<col width="8%" />
+<col width="5%" />
+<col width="9%" />
+<col width="4%" />
+<col width="6%" />
+<col width="13%" />
+<col width="19%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">pregnant</th>
+<th align="right">glucose</th>
+<th align="right">diastolic</th>
+<th align="right">skinfold</th>
+<th align="right">insulin</th>
+<th align="right">bmi</th>
+<th align="right">pedigree</th>
+<th align="right">age</th>
+<th align="right">class</th>
+<th align="right">scored.class</th>
+<th align="right">scored.probability</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">7</td>
+<td align="right">124</td>
+<td align="right">70</td>
+<td align="right">33</td>
+<td align="right">215</td>
+<td align="right">25.5</td>
+<td align="right">0.161</td>
+<td align="right">37</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.3284523</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">122</td>
+<td align="right">76</td>
+<td align="right">27</td>
+<td align="right">200</td>
+<td align="right">35.9</td>
+<td align="right">0.483</td>
+<td align="right">26</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.2731904</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">107</td>
+<td align="right">62</td>
+<td align="right">13</td>
+<td align="right">48</td>
+<td align="right">22.9</td>
+<td align="right">0.678</td>
+<td align="right">23</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0.1096604</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">91</td>
+<td align="right">64</td>
+<td align="right">24</td>
+<td align="right">0</td>
+<td align="right">29.2</td>
+<td align="right">0.192</td>
+<td align="right">21</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.0559984</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">83</td>
+<td align="right">86</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">29.3</td>
+<td align="right">0.317</td>
+<td align="right">34</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.1004907</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">100</td>
+<td align="right">74</td>
+<td align="right">12</td>
+<td align="right">46</td>
+<td align="right">19.5</td>
+<td align="right">0.149</td>
+<td align="right">28</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.0551546</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Selecting only the columns &quot;scored.class&quot; and &quot;class&quot; from the dataframe</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>key_col <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">&quot;scored.class&quot;</span>,<span class="st">&quot;class&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># checking for missing values </span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(key_col))</span></code></pre></div>
 <pre><code>## scored.class        class 
 ##            0            0</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">table</span>(key_col)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">table</span>(key_col)</span></code></pre></div>
 <pre><code>##             class
 ## scored.class   0   1
 ##            0 119  30
 ##            1   5  27</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Create a contingency table</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>contingency_table <span class="ot">&lt;-</span> <span class="fu">table</span>(key_col)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># Convert the contingency table into a data frame</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>contingency_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(contingency_table)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># Print the contingency table data frame</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">print</span>(contingency_df)</span></code></pre></div>
+<pre><code>##   scored.class class Freq
+## 1            0     0  119
+## 2            1     0    5
+## 3            0     1   30
+## 4            1     1   27</code></pre>
 <div id="overview" class="section level2">
 <h2>Overview:</h2>
 <p>This homework assignment will guide you through different
@@ -1625,22 +1735,118 @@ format.</li>
 <li>Download the classification output data set (attached in Blackboard
 to the assignment).</li>
 </ol>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>class_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">read.csv</span>(<span class="st">&#39;https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-2/classification-output-data.csv&#39;</span>))</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">head</span>(class_df)</span></code></pre></div>
-<pre><code>##   pregnant glucose diastolic skinfold insulin  bmi pedigree age class
-## 1        7     124        70       33     215 25.5    0.161  37     0
-## 2        2     122        76       27     200 35.9    0.483  26     0
-## 3        3     107        62       13      48 22.9    0.678  23     1
-## 4        1      91        64       24       0 29.2    0.192  21     0
-## 5        4      83        86       19       0 29.3    0.317  34     0
-## 6        1     100        74       12      46 19.5    0.149  28     0
-##   scored.class scored.probability
-## 1            0         0.32845226
-## 2            0         0.27319044
-## 3            0         0.10966039
-## 4            0         0.05599835
-## 5            0         0.10049072
-## 6            0         0.05515460</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>class_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">read.csv</span>(<span class="st">&#39;https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-2/classification-output-data.csv&#39;</span>))</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(class_df))</span></code></pre></div>
+<table>
+<colgroup>
+<col width="9%" />
+<col width="8%" />
+<col width="10%" />
+<col width="9%" />
+<col width="8%" />
+<col width="5%" />
+<col width="9%" />
+<col width="4%" />
+<col width="6%" />
+<col width="13%" />
+<col width="19%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">pregnant</th>
+<th align="right">glucose</th>
+<th align="right">diastolic</th>
+<th align="right">skinfold</th>
+<th align="right">insulin</th>
+<th align="right">bmi</th>
+<th align="right">pedigree</th>
+<th align="right">age</th>
+<th align="right">class</th>
+<th align="right">scored.class</th>
+<th align="right">scored.probability</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">7</td>
+<td align="right">124</td>
+<td align="right">70</td>
+<td align="right">33</td>
+<td align="right">215</td>
+<td align="right">25.5</td>
+<td align="right">0.161</td>
+<td align="right">37</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.3284523</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">122</td>
+<td align="right">76</td>
+<td align="right">27</td>
+<td align="right">200</td>
+<td align="right">35.9</td>
+<td align="right">0.483</td>
+<td align="right">26</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.2731904</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">107</td>
+<td align="right">62</td>
+<td align="right">13</td>
+<td align="right">48</td>
+<td align="right">22.9</td>
+<td align="right">0.678</td>
+<td align="right">23</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0.1096604</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">91</td>
+<td align="right">64</td>
+<td align="right">24</td>
+<td align="right">0</td>
+<td align="right">29.2</td>
+<td align="right">0.192</td>
+<td align="right">21</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.0559984</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">83</td>
+<td align="right">86</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">29.3</td>
+<td align="right">0.317</td>
+<td align="right">34</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.1004907</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">100</td>
+<td align="right">74</td>
+<td align="right">12</td>
+<td align="right">46</td>
+<td align="right">19.5</td>
+<td align="right">0.149</td>
+<td align="right">28</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.0551546</td>
+</tr>
+</tbody>
+</table>
 <p>The dataset provided includes several attributes to predict whether
 or not a patient has diabetes.</p>
 <ol start="2" style="list-style-type: decimal">

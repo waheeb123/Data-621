@@ -17,16 +17,19 @@ knitr::opts_chunk$set(eval = TRUE, message = FALSE, warning = FALSE)
 library(tidyverse)
 library(openintro)
 library(geomtextpath)
+library(knitr)
 ```
 
 
 ```{r cars}
 df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-2/classification-output-data.csv")
 df <- data.frame(df)
-head(df)
+kable(head(df))
 ```
 
+
 ```{r}
+# Selecting only the columns "scored.class" and "class" from the dataframe
 key_col <- df %>% 
   select("scored.class","class")
 
@@ -34,9 +37,25 @@ key_col <- df %>%
 colSums(is.na(key_col))
 ```
 
+
 ```{r}
 table(key_col)
 ```
+
+
+```{r}
+
+# Create a contingency table
+contingency_table <- table(key_col)
+
+# Convert the contingency table into a data frame
+contingency_df <- as.data.frame(contingency_table)
+
+# Print the contingency table data frame
+print(contingency_df)
+
+```
+
 
 ## Overview:
 
@@ -60,7 +79,7 @@ Complete each of the following steps as instructed:
 
 ```{r}
 class_df <- as.data.frame(read.csv('https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-2/classification-output-data.csv'))
-head(class_df)
+kable(head(class_df))
 ```
 
 The dataset provided includes several attributes to predict whether or not a patient has diabetes. 
