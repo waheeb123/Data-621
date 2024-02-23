@@ -16,13 +16,10 @@ editor_options:
 knitr::opts_chunk$set(eval = TRUE, message = FALSE, warning = FALSE)
 library(tidyverse)
 library(openintro)
+library(geomtextpath)
 ```
 
-<<<<<<< HEAD
-```{r warning = FALSE, message = FALSE}
-library(tidyverse)
-library(geomtextpath)
-=======
+
 ```{r cars}
 df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-2/classification-output-data.csv")
 df <- data.frame(df)
@@ -39,7 +36,6 @@ colSums(is.na(key_col))
 
 ```{r}
 table(key_col)
->>>>>>> fde25d59b6833b47d77c2352c4375a06049bf9af
 ```
 
 ## Overview:
