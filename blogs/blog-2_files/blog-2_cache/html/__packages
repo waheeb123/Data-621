@@ -1,0 +1,15 @@
+ggplot2
+dplyr
+reshape2
+tidyverse
+tibble
+tidyr
+readr
+purrr
+stringr
+forcats
+lubridate
+airports
+cherryblossom
+usdata
+openintro
