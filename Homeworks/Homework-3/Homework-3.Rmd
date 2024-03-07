@@ -1,11 +1,74 @@
 ---
 title: "Homework-3"
-author: "Rstudio"
-date: "2024-03-07"
-output: html_document
+author: "Waheeb Algabri, Joe Garcia, Lwin Shwe, Mikhail Broomes"
+output:
+  html_document:
+    highlight: pygments
+    theme: cerulean
+    toc: true
+    toc_float: true
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
 ---
-
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE)
+
+library(tidyverse)
+library(modelr)
+library(DataExplorer)
+library(correlationfunnel)
+library(caret)
+library(knitr)
+library(confintr)
+library(psych)
+library(car)
+library(corrplot)
+library(RColorBrewer)
+library(MASS)
+select <- dplyr::select
+library(glmtoolbox)
+library(cowplot)
+library(pROC)
+library(bestglm)
+
 ```
+
+
+## Homework 3 - Logistic Regression
+
+### Analysis of Factors that Influence Crime Rates:
+
+In this homework assignment, we'll delve into examining, dissecting, and modeling a dataset that provides insights into crime across different neighborhoods within a bustling metropolis. Each entry in the dataset includes a variable denoting whether the crime rate exceeds the median value `(1)` or falls below it `(0)`
+Our goal is to construct a binary logistic regression model using the training dataset. This model aims to forecast whether a neighborhood is prone to experiencing elevated levels of crime.
+Here's a brief rundown of the key variables in the dataset:
+
+|Column|Description|
+|--|--|
+|`zn`|proportion of residential land zoned for large lots (over 25000 square feet) (*predictor variable*)|
+|`indus`|proportion of non-retail business acres per suburb (*predictor variable*)|
+|`chas`|a dummy var. for whether the suburb borders the Charles River (1) or not (0) (*predictor variable*)|
+|`nox`|nitrogen oxides concentration (parts per 10 million) (*predictor variable*)|
+|`rm`|average number of rooms per dwelling (*predictor variable*)|
+|`age`|proportion of owner-occupied units built prior to 1940 (*predictor variable*)
+|`dis`|weighted mean of distances to five Boston employment centers (*predictor variable*)
+|`rad`|index of accessibility to radial highways (*predictor variable*)|
+|`tax`|full-value property-tax rate per $10,000 (*predictor variable*)|
+|`ptratio`|pupil-teacher ratio by town (*predictor variable*)|
+|`lstat`|lower status of the population (percent) (*predictor variable*)|
+|`medv`|median value of owner-occupied homes in $1000s (*predictor variable*)|
+|**`target`**|**whether the crime rate is above the median crime rate (1) or not (0) (*response variable*)**|
+
+```{r load-train-data, echo=F}
+train_df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-3/crime-training-data")
+test_df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-3/crime-evaluation-data")
+
+```
+
+
+
+
+
+
+
 
