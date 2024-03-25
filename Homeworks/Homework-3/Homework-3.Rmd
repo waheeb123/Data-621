@@ -31,6 +31,11 @@ library(glmtoolbox)
 library(cowplot)
 library(pROC)
 library(bestglm)
+library(kableExtra)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(plotly)
 
 ```
 
@@ -41,6 +46,8 @@ library(bestglm)
 
 In this homework assignment, we'll delve into examining, dissecting, and modeling a dataset that provides insights into crime across different neighborhoods within a bustling metropolis. Each entry in the dataset includes a variable denoting whether the crime rate exceeds the median value `(1)` or falls below it `(0)`
 Our goal is to construct a binary logistic regression model using the training dataset. This model aims to forecast whether a neighborhood is prone to experiencing elevated levels of crime.
+We will assess the performance of the model using appropriate evaluation metrics, possibly including accuracy, precision, recall, and F1 score.
+
 Here's a brief rundown of the key variables in the dataset:
 
 |Column|Description|
@@ -59,11 +66,100 @@ Here's a brief rundown of the key variables in the dataset:
 |`medv`|median value of owner-occupied homes in $1000s (*predictor variable*)|
 |**`target`**|**whether the crime rate is above the median crime rate (1) or not (0) (*response variable*)**|
 
-```{r load-train-data, echo=F}
+
+## Data Exploration
+
+Describe the size and the variables in the crime training data set. Consider that too much detail will cause a manager to lose interest while too little detail will make the manager consider that you aren't doing your job. Some suggestions are given below. Please do NOT treat this as a check list of things to do to complete the assignment. You should have your own thoughts on what to tell the boss. These are just ideas.
+a. Mean / Standard Deviation / Median
+b. Bar Chart or Box Plot of the data
+c. Is the data correlated to the target variable (or to other variables?)
+d. Are any of the variables missing and need to be imputed/"fixed"?
+
+```{r load-train-data}
+# Import the .csv file of given datasets
 train_df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-3/crime-training-data")
 test_df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework-3/crime-evaluation-data")
 
+# check the dataset's size and the first few observations
+glimpse(train_df)
+glimpse(test_df)
+
+
+#verify if there were any missing data in the training dataset to remove them
+clean_df <-na.omit(train_df)
+any(is.na(clean_df))
+dim(clean_df)
+
+# Explore the distribution of variables
+summary(train_df)
+
+# calculate the proportion of each class in the target variable
+class_proportion <- colMeans(train_df['target'])
+print(class_proportion)
+
+
+# Melt the dataset to long format for plotting
+melted_df <- reshape2::melt(train_df)
+# Create density plots for all variables
+ggplot(melted_df, aes(value, fill = variable)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ variable, scales = "free") +
+  labs(x = "Value", y = "Density") +
+  theme_minimal()
+# Create box plots for all variables
+ggplot(melted_df, aes(variable, value, fill = variable)) +
+  geom_boxplot(alpha = 0.5) +  # Set transparency for better visualization
+  facet_wrap(~ variable, scales = "free") +
+  labs(x = "Variable", y = "Value") +
+  theme_minimal()
+
+
+
+# Calculate correlation values between each variable and the target variable
+correlation_values <- sapply(train_df[, -13], function(x) cor(x, train_df$target))
+# Sort the correlation values in descending order
+sorted_correlation <- sort(correlation_values, decreasing = TRUE)
+# Create a data frame for the sorted correlation values
+correlation_df <- data.frame(
+  Variable = names(sorted_correlation),
+  Correlation = sorted_correlation
+)
+print(correlation_df)
+
+# Calculate correlation matrix
+correlation <- cor(clean_df, use = 'pairwise.complete.obs')
+
+# Create the correlation plot
+corrplot(correlation, type = 'lower', order = 'hclust',
+         col=brewer.pal(n=8, name="RdYlBu"))
+
+
 ```
+
+
+The crime training dataset, train_df has 466 observations and 12 features. A subset, test_df of 40 instances has been reserved for evaluation purposes. The targets have been removed from this subset. By applying the command na.omit(), there is no observations containing missing values for any of the variables are removed.
+
+The density plots illustrates the response variable(target) has a binomial normal distribution because it only has outputs (0 and 1). Beside the average number of rooms per dwelling(rm) which as a normal distribution, the rest of variables show right and left skewed such as 'zn' and 'tax' that indicates the potential outliers affecting the mean and imbalance in the categorical variable, 'chas ' is imbalanced, with over 75% of its values being 0 that indicates an uneven distribution of categories within the variable.
+Box plots interpret the median value of "nox" indicates high nitrogen oxides concentration which refers to a risk of high crime level and "chas" and "zn" have insignificant median values, it suggests their potential irrelevance for statistical analysis.
+
+The target variable's classes are reasonably balanced in train_df dataset that shows a relatively balanced distribution, with approximately 51% of instances labeled as 0 and 49% labeled as 1 . which is conducive to building robust predictive models.
+
+From correlation table, we've noticed that the variables ‘nox’, ‘age’, ‘rad’, ‘tax’, and ‘indus’ have positive correlations with the target variable, while the variable ‘dis’ has a negative correlation. Additionally, we observed that the remaining variables have no significant correlation with the target variable.
+
+
+ 
+
+
+
+## Data Prepartion
+
+
+
+## Build Models
+
+
+## Select Models
+
 
 
 
