@@ -153,7 +153,33 @@ From correlation table, we've noticed that the variables ‘nox’, ‘age’, �
 
 ## Data Prepartion
 
+Let us first look and test our assumptions underlying a Binary Logistic regression 
 
+## Assumption 1 - No extreme outliers 
+
+I will test for outliers using boxplots as a visual representation of the variables 
+
+```{r}
+for (i in 1:(length(variables))) {
+    boxplot(clean_df[[variables[i]]], main = variables[i], col = "lightblue")
+}
+```
+
+Based on the boxplots we can see that we have outliers for the variables zn, rm , dis, lstat and medv 
+
+## Assumption 2 - Little to no collinearity
+
+Let us test for collinearity using the vif function 
+
+Let us look at the distributions of the variables 
+
+```{r}
+model <- glm(target ~ . , data = clean_df)
+
+vif_values <- car::vif(model)
+kable(data.frame(vif_values))
+```
+We can see high collinearity in rad and tax 
 
 ## Build Models
 
