@@ -816,7 +816,3 @@ The predictions are evenly split at 50% between the two binary responses and tha
 
 
 
-
-
-
-
