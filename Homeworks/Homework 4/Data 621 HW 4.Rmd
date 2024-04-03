@@ -109,17 +109,27 @@ train_df <- train_df |>
 
 ```
 
-We remove columns named `discrete_columns`, `continuous_columns`, `total_observations`, and `memory_usage` from the dataset, then we take a look at a summary of the dataset's completeness.
+We remove the column named `INDEX` from the dataset, then we take a look at a summary of the dataset's completeness.
 
-```{r data2}
-
-remove <- c("discrete_columns", "continuous_columns",
-            "total_observations", "memory_usage")
-completeness <- introduce(train_df) |>
-    select(-all_of(remove))
+```{r}
+train_df <- train_df |> select(-INDEX)
+completeness <- introduce(train_df)
 knitr::kable(t(completeness), format = "simple")
+```
+
+None of our columns are completely devoid of data. There are 6,448 complete rows in the dataset, which is about 65% of our observations. There are 1,879 total missing values. We take a look at which variables contain these missing values and what the spread is.
+
+```{r data3, include = FALSE}
+look <- plot_missing(train_df, missing_only = TRUE,
+                   ggtheme = theme_classic(), title = "Missing Values")
 
 ```
 
+```{r data4, warning = FALSE, message = FALSE, fig.show='hold', out.width='90%'}
+look <- look + 
+    scale_fill_brewer(palette = "Paired")
+look
 
+```
 
+A very small percentage of observations contain missing `AGE` values. The `INCOME`, `YOJ`, `HOME_VAL`, `CAR_AGE`, and `JOB` variables are each missing around 5.5 to 6.5 percent of values. There are no variables containing such extreme proportions of missing values that removal would be warranted on that basis alone. 
