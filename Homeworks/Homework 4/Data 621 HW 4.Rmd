@@ -1,4 +1,5 @@
-title: "Homework-4"
+---
+title: "Homework-3"
 author: "Waheeb Algabri, Joe Garcia, Lwin Shwe, Mikhail Broomes"
 output:
   html_document:
@@ -10,71 +11,113 @@ output:
 editor_options: 
   chunk_output_type: console
 ---
-```{r setup, include=FALSE}
+```{r packages, warning=FALSE, message = FALSE , echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE)
-
 library(tidyverse)
-library(modelr)
 library(DataExplorer)
-library(correlationfunnel)
-library(caret)
 library(knitr)
-library(confintr)
-library(psych)
-library(car)
-library(corrplot)
+library(cowplot)
+library(finalfit)
+library(correlationfunnel)
+library(ggcorrplot)
 library(RColorBrewer)
+library(naniar)
+library(mice)
 library(MASS)
 select <- dplyr::select
+library(kableExtra)
+library(car)
 library(glmtoolbox)
-library(cowplot)
 library(pROC)
-library(bestglm)
+library(caret)
+library(robustbase)
 
 ```
 
+## Introduction
 
-## Multiple Linear Regression and Binary Logistic Regression 
+This research focuses on analyzing an auto insurance company dataset comprising `8,161` records, each representing a customer. The dataset encompasses two response variables: `TARGET_FLAG` and `TARGET_AMT`. `TARGET_FLAG` indicates whether a customer was involved in a car crash `(1)` or not `(0)`, while `TARGET_AMT` represents the cost incurred if the customer was involved in a crash (zero if not). Our aim is to construct robust models using multiple linear regression and binary logistic regression techniques to predict both the likelihood of a car crash and the associated financial impact. The dataset includes the following variables:
 
-In this homework assignment, you will explore, analyze and model a data set containing approximately 8000
+### Multiple Linear Regression and Binary Logistic Regression 
+
+In this study, we will explore, analyze and model a data set containing approximately 8000
 records representing a customer at an auto insurance company. Each record has two response variables. The
-first response variable, TARGET_FLAG, is a 1 or a 0. A “1” means that the person was in a car crash. A zero
-means that the person was not in a car crash. The second response variable is TARGET_AMT. This value is zero
+first response variable, `TARGET_FLAG`, is a `1` or a `0`. A “1” means that the person was in a car crash. A zero
+means that the person was not in a car crash. The second response variable is `TARGET_AMT`. This value is zero
 if the person did not crash their car. But if they did crash their car, this number will be a value greater than zero.
-Your objective is to build multiple linear regression and binary logistic regression models on the training data
-to predict the probability that a person will crash their car and also the amount of money it will cost if the person
-does crash their car. You can only use the variables given to you (or variables that you derive from the variables
-provided). Below is a short description of the variables of interest in the data set:
 
+Our objective is twofold: to develop predictive models using multiple linear regression and binary logistic regression on the training data. These models aim to forecast the probability of a customer being involved in a car crash and the monetary consequences of such incidents. We are constrained to utilize only the provided variables or those derived from them. Below is a concise description of the dataset's variables of interest
 
 ```{r}
 train_df <-  read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework%204/insurance_training_data.csv")
 test_df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework%204/insurance-evaluation-data.csv")
 ```
 
+|VARIABLE NAME|DEFINITION|THEORETICAL EFFECT|
+|--|--|--|
+|`INDEX`|Identification Variable|None|
+|`TARGET_FLAG`|Was Car in a crash? 1=YES 0=NO|None|
+|`TARGET_AMT`|If car was in a crash, what was the cost|None|
+|`AGE`|Age of Driver|Very young and very old people tend to be risky|
+|`BLUEBOOK`|Value of Vehicle|Unknown effect on probability of collision, but probably effect the payout if there is a crash|
+|`CAR_AGE`|Vehicle Age|Unknown effect on probability of collision, but probably effect the payout if there is a crash|
+|`CAR_TYPE`|Type of Car|Unknown effect on probability of collision, but probably effect the payout if there is a crash|
+|`CAR_USE`|Vehicle Use|Commercial vehicles are driven more, so might increase probability of collision|
+|`CLM_FREQ`|# Claims (Past 5 Years)|The more claims you filed in the past, the more you are likely to file in the future|
+|`EDUCATION`|Max Education Level|Unknown but possible more educated people tend to drive safer|
+|`HOMEKIDS`|# Children at Home|Unknown|
+|`HOME_VAL`|Home Value|Homeowners tend to drive safer|
+|`INCOME`|Income|Rich people tend to be in fewer crashes|
+|`JOB`|Job Category|White collar jobs tend to be safer|
+|`KIDSDRIV`|# Driving Children|When teenagers drive your car, you are more likely to get into crashes|
+|`MSTATUS`|Marital Status|Married people driver safer|
+|`MVR_PTS`|Motor Vehicle Record Points|If you get a lot of traffic tickets, you tend to get into more accidents|
+|`OLDCLAIM`|Total Claims (Past 5 Years)|If your total payout over the past five years was high, this suggests future payouts will be high|
+|`PARENT1`|Single Parent|Unknown|
+|`RED_CAR`|A Red Car|Urban legend says that red cars (especially red sports cars) are more risky|
+|`REVOKED`|License Revoked (Past 7 Years)|If your license was revoked in the past 7 years, you probably are a more risky driver|
+|`SEX`|Gender|Urban legend says that women have less crashes then men|
+|`TIF`|Time in Force|People who have been customers for a long time are usually more safe|
+|`TRAVTIME`|Distance to Work|Long drives to work usually suggest greater risk|
+|`URBANICITY`|Home/Work Area|Unknown|
+|`YOJ`|Years on Job|People who stay at a job for a long time are usually more safe|
 
-```{r}
-dim(train_df)
+### Data Exploration:
+
+We check the classes of our variables to determine whether any of them need to be coerced to numeric or other classes prior to exploratory data analysis. 
+
+```{r data_classes, warning=F}
+classes <- as.data.frame(unlist(lapply(train_df, class))) |>
+    rownames_to_column()
+cols <- c("Variable", "Class")
+colnames(classes) <- cols
+classes_summary <- classes |>
+    group_by(Class) |>
+    summarize(Count = n(),
+              Variables = paste(sort(unique(Variable)),collapse=", "))
+kable(classes_summary, "latex", booktabs = T) |>
+  kableExtra::column_spec(2:3, width = "7cm")
+
 ```
-The dataset consists of 466 observations of 26 variables. There are 24 predictor variables and two response variable (`TARGET_FLAG` and `TARGET_AMT`).
 
+`INCOME`, `HOME_VAL`, `BLUEBOOK`, and `OLDCLAIM` are all character variables that will need to be coerced to integers after we strip the "$" from their strings. `TARGET_FLAG` and the remaining character variables will all need to be coerced to factors.
 
-```{r}
-train_df |>
-    glimpse()
-```
-There are two target variables `TARGET_FLAG` and `TARGET_AMT`. `TARGET_AMT` is a a continuous variable while `TARGET_FLAG` is a dummy variable which we will change to a factor to ensure R treats our variable as a categorical variable. 
-
-```{r}
+```{r data_char_int_recode}
+vars <- c("INCOME", "HOME_VAL", "BLUEBOOK", "OLDCLAIM")
 train_df <- train_df |>
-    mutate(TARGET_FLAG = as.factor(TARGET_FLAG))
+    mutate(across(all_of(vars), ~gsub("\\$|,", "", .) |> as.integer()))
+
 ```
 
+We remove columns named `discrete_columns`, `continuous_columns`, `total_observations`, and `memory_usage` from the dataset, then we take a look at a summary of the dataset's completeness.
 
-We will now take a look at summary statistics 
+```{r data2}
 
-```{r}
-summary(train_df)
+remove <- c("discrete_columns", "continuous_columns",
+            "total_observations", "memory_usage")
+completeness <- introduce(train_df) |>
+    select(-all_of(remove))
+knitr::kable(t(completeness), format = "simple")
 
 ```
 
