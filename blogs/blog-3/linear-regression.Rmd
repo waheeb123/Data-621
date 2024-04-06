@@ -1,0 +1,286 @@
+---
+title: "blog-3"
+author: "Waheeb Algabri"
+output:
+  pdf_document: default
+  html_document:
+    highlight: pygments
+    theme: cerulean
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(openintro)
+```
+
+
+
+### Introduction
+
+In this blog, we delve into the realm of predictive analytics by constructing regression models using bike sharing data. Through a series of steps, we will navigate the process of model creation, interpretation, and prediction. The dataset under scrutiny, Bike-Sharing-Dataset.zip, comprises two key files: hour.csv and day.csv. For the purpose of this analysis, we will exclusively employ day.csv. This dataset encapsulates various attributes, but for our models, we'll primarily focus on 'dteday', 'temp', and 'cnt' columns. The 'cnt' column serves as our dependent variable, whereas 'temp' and 'month_name', derived from 'dteday', will act as independent variables in our regression models. Leveraging R/RStudio, we will conduct data summary, preparation, and regression modeling tasks, with a keen eye on model diagnostics and interpretation.
+
+
+| Name         | Definition                                 |
+|--------------|--------------------------------------------|
+| instant      | Record index                               |
+| dteday       | Date                                       |
+| season       | Season (1:spring, 2:summer, 3:fall, 4:winter) |
+| yr           | Year (0: 2011, 1:2012)                     |
+| mnth         | Month                                      |
+| holiday      | Whether it is a holiday or not (1: yes, 0: no) |
+| weekday      | Day of the week                             |
+| workingday   | Whether it is a working day or not (1: yes, 0: no) |
+| weathersit   | Weather situation                           |
+| temp         | Normalized temperature in Celsius           |
+| atemp        | Normalized feeling temperature in Celsius  |
+| hum          | Normalized humidity                         |
+| windspeed    | Normalized wind speed                       |
+| casual       | Count of casual users                       |
+| registered   | Count of registered users                   |
+| cnt          | Total count of users (casual + registered)  |
+| month_name   | Name of the month                          |
+
+
+### Research Question
+
+How do temperature and month impact bike sharing counts, and how effectively can these factors be modeled using regression analysis? Specifically, we aim to address the following:
+
+- How does bike sharing count vary with different months of the year?
+
+- What is the relationship between temperature and bike sharing count?
+
+- How does the inclusion of temperature alongside month affect the predictive power of the regression model compared to a model solely based on month?
+
+### Simple and Multiple linear regression
+
+#### Loading Necessary Libraries and Data
+
+```{r}
+# Load necessary libraries
+library(lubridate)
+library(dplyr)
+library(corrplot)
+
+```
+
+
+```{r}
+# Load data
+day <- read.csv("day.csv")
+
+```
+
+
+#### Data Wrangling
+
+```{r}
+str(day)
+```
+
+```{r}
+summary(day)
+```
+
+```{r}
+# Check for missing values
+sum(is.na(day))
+```
+
+The result is Zero which means no missing values.
+
+```{r}
+# calculates the sum of values across each row for columns 7 through 13 in the dataframe day.
+
+# rowSums(day[,7:13]) 
+```
+
+```{r}
+# calculates the total sum of all the values across each row for columns 7 through 13 in the dataframe day.
+sum(rowSums(day[,7:13]))
+```
+
+```{r}
+n_distinct(day$site_name)
+```
+
+To understand the unique values within each column of the day dataframe, you can use the distinct() function from the dplyr package or the unique() function in base
+
+```{r}
+# Display unique values 
+n_distinct(day$instant)
+```
+
+```{r}
+
+day %>%
+  pivot_longer(cols = 7:13,
+               names_to = "parent") %>% 
+  mutate(parent = abbreviate(parent, 10)) %>%
+  ggplot(aes(x = parent, y = value)) + 
+  geom_boxplot()
+
+```
+
+
+#### Model 1
+```{r}
+# Model 1: Simple Regression 
+Model1 <- lm(cnt ~ mnth, data = day)
+```
+
+
+```{r}
+ggplot(day, aes(x= mnth, y = cnt)) + 
+  geom_point()
+```
+
+```{r}
+plot(Model1)
+```
+
+
+
+```{r}
+cor(day[,c("cnt", "mnth")])
+```
+
+The correlation coefficient between cnt and mnth is approximately 0.28.
+This positive correlation suggests that there is a weak positive linear relationship between the total count of users and the month variable.
+
+```{r}
+cor(day[,c("cnt", "mnth","temp")])
+```
+```{r}
+ctrd <- cor(day %>% select(where(is.numeric)))
+print(ctrd)
+
+```
+
+```{r}
+# Plot the correlation matrix using corrplot with the specified parameters
+corrplot(ctrd, method = "color", order = "hclust", addCoef.col = "black", number.cex = 0.6)
+
+```
+
+```{r}
+# Plot pairwise scatterplots for all numeric variables in the dataset
+pairs(day %>% select(where(is.numeric)), cex = 0.1)
+
+```
+
+```{r}
+summary(Model1)
+```
+
+The R-squared value of 0.07839 suggests that only around 7.84% of the variation in bike sharing counts can be explained by the month variable alone. This means that a large portion of the variability in bike sharing counts remains unexplained by the month variable in Model1. It's possible that other factors not included in the model are influencing bike sharing counts.
+
+
+**Reference Month:**
+
+To identify the reference month, we need to look at the coefficient estimates. The reference month is the one with a coefficient estimate of 0, as it serves as the baseline for comparison. Let's extract the coefficient estimates:
+```{r}
+# Coefficient estimates for Model1
+coef(Model1)
+
+```
+
+From the output, we can see that the intercept corresponds to the reference month. Therefore, the reference month is the month with an intercept coefficient. We'll report the predicted count for this month below.
+
+**Predicted Count for January and June:**
+
+To obtain the predicted count for January and June, we can use the coefficient estimates from Model1. Since January is the reference month, its coefficient estimate directly represents the predicted count for January. Similarly, we can extract the coefficient estimate for June and compute the predicted count.
+
+```{r}
+# Extracting the coefficients from Model1
+intercept <- coef(Model1)[1]
+coefficient_mnth <- coef(Model1)[2]
+
+# Predicted count for January
+january_pred <- intercept + coefficient_mnth
+
+# Predicted count for June (6 months ahead of January)
+june_pred <- january_pred + (coefficient_mnth * 6)
+
+# Print the predicted counts
+cat("Predicted count for January:", january_pred, "\n")
+cat("Predicted count for June:", june_pred, "\n")
+
+
+```
+
+
+#### Model2: Multiple Linear Regression
+
+```{r}
+# Model 2: Multiple Linear Regression
+Model2 <- lm(cnt ~ temp + mnth, data = day)
+plot(Model2)
+```
+
+```{r}
+# Summary for Model2
+summary(Model2)
+
+```
+
+
+
+The R-squared value for Model2 is higher than that of Model1, indicating that Model2, which includes both temperature and month as independent variables, explains more variability in the dependent variable (bike sharing counts) compared to Model1, which only included the month variable. This improvement in the R-squared value suggests that temperature is an important predictor of bike sharing counts and contributes significantly to the model's predictive power, in addition to the month variable.
+
+**Comparison of Coefficient Estimates:**
+
+We'll compare the coefficient estimates for the month_nameJan variable between Model1 and Model2.
+
+```{r}
+# Coefficient estimates for Model2
+coef(Model2)
+
+```
+
+In Model1 (where only the month variable was used as a predictor), the coefficient estimate for the month variable was 157.12.
+In Model2 (where both temperature and month were used as predictors), the coefficient estimate for the month variable reduced to 83.63.
+
+
+**Predicted Count for January with Temperature 0.25**
+
+To predict the count for January when the temperature is 0.25, we can use the coefficient estimates from Model2.
+
+```{r}
+# Predicted count for January with temp = 0.25
+january_pred_temp <- coef(Model2)["(Intercept)"] + coef(Model2)["temp"] * 0.25
+cat("Predicted count for January with temp = 0.25:", january_pred_temp)
+
+```
+
+
+```{r}
+# Coefficients from Model2
+intercept <- 841.41012
+temp_coef <- 6293.41819
+mnth_coef <- 83.63325
+
+# Temperature value for prediction
+temp_value <- 0.25
+
+# Month value for January (since January is the reference month)
+january <- 1
+
+# Predicted count for January with temp = 0.25
+predicted_count_january <- intercept + temp_coef * temp_value + mnth_coef * january
+predicted_count_january
+
+```
+
+### Conclusion
+the analysis of bike sharing data using regression models reveals insightful relationships between various factors and bike sharing counts. While the month variable alone provides limited predictive power, the inclusion of temperature significantly enhances the model's ability to explain variations in bike sharing counts. Higher temperatures are associated with increased bike sharing activity, underscoring the influence of weather on user behavior.
+
+Comparing the models highlights the importance of considering both temporal and weather-related variables. Model 2, which incorporates both temperature and month, outperforms Model 1, emphasizing the significance of temperature in predicting bike sharing demand.
+
+These findings offer valuable insights for bike sharing systems, enabling them to better anticipate and respond to demand fluctuations. By leveraging weather data alongside seasonal trends, bike sharing providers can optimize resource allocation, enhance service planning, and ultimately improve the overall user experience. This analysis underscores the importance of integrating weather considerations into predictive models to optimize bike sharing system operations effectively.
+
+
