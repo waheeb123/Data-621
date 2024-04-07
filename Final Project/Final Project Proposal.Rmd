@@ -26,12 +26,12 @@ library(glue)
 
 ## Introduction:
 
-Our dataset comes from [OpenData's - School Quality Report](https://data.cityofnewyork.us/Education/2020-2021-School-Quality-Reports-High-School/26je-vkp6/about_data) for NYC high schools between 2020 and 2021. Our final project will potentially include more up-to-date educational information and geographic data to augment our analysis.
+Our final project aims to analyze the predictive power of Department of Education (DOE) ratings on the academic performance of New York City (NYC) high schools. Leveraging data from [OpenData's - School Quality Report](https://data.cityofnewyork.us/Education/2020-2021-School-Quality-Reports-High-School/26je-vkp6/about_data) for NYC high schools between 2020 and 2021. Our final project will potentially include more up-to-date educational information and geographic data to augment our analysis.
 
-First, let's read in our source CSV file. This is posted in our [GitHub repository]() in the interest of reproducibility.
+First, let's read in our source CSV file. This is posted in our [GitHub repository](https://github.com/waheeb123/Data-621) in the interest of reproducibility.
 
 ```{r data-read-in}
-# df <- read.csv("")
+df <- read.csv("https://raw.githubusercontent.com/waheeb123/Data-621/main/Final%20Project/2020-2021_School_Quality_Reports_-_High_School_20240407.csv")
 ```
 
 There are several predictor variables of interest to us. The NYC School Quality Report from the Department of Education included ratings for schools in the following categories. We would like to see how effective these ratings are at predicting student success:
@@ -61,6 +61,9 @@ First, let's plot the counts of schools receiving all possible different rating 
 
 
 ## Modeling
+
+
+
 
 
 
