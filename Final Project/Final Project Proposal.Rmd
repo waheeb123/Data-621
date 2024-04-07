@@ -1,0 +1,81 @@
+---
+title: "final project proposal"
+author: "Waheeb Algabri, Joe Garcia, Lwin Shwe, Mikhail Broomes"
+output:
+  html_document:
+    highlight: pygments
+    theme: cerulean
+    toc: true
+    toc_float: true
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r libraries, message=FALSE, echo=FALSE}
+library(tidyverse)
+library(modelr)
+library(glue)
+```
+
+
+## Introduction:
+
+Our dataset comes from [OpenData's - School Quality Report](https://data.cityofnewyork.us/Education/2020-2021-School-Quality-Reports-High-School/26je-vkp6/about_data) for NYC high schools between 2020 and 2021. Our final project will potentially include more up-to-date educational information and geographic data to augment our analysis.
+
+First, let's read in our source CSV file. This is posted in our [GitHub repository]() in the interest of reproducibility.
+
+```{r data-read-in}
+# df <- read.csv("")
+```
+
+There are several predictor variables of interest to us. The NYC School Quality Report from the Department of Education included ratings for schools in the following categories. We would like to see how effective these ratings are at predicting student success:
+
+- *Quality Review Rating*
+- *Achievement Rating*
+- *Environment Rating*
+- *College and Career Readiness Rating*
+
+
+In addition, it'd be interesting to see if these ratings could be replaced by proxy variables? Doing so could save the Department of Education (DOE) time in not assigning ratings when they could have similar impact by knowing certain values for a school.
+
+Our response variable will be the average student's SAT Score at a given school. SAT Scores are an imperfect metric given their [correlation with other socioeconomic factors](https://www.manhattanreview.com/sat-predictor-college-success/), but for our purposes can serve as an imperfect benchmark to measure academic performance.
+
+**Main research question:** Do these DOE-ratings accurately predict whether a school will foster high academic performance in students, and are there other proxy variables that can be used to more accurately predict academic performance (measured in SAT scores)
+
+
+
+## EDA
+
+First, let's plot the counts of different rating combinations by school. This should give us a sense if schools with one rating for a given bucket tend to have similar ratings for other categories (i.e., schools with high *Quality Review Rating* values tend to have high *Achievement Ratings* as well).
+
+
+## Exploratory Data Analysis:
+
+First, let's plot the counts of schools receiving all possible different rating combinations. This should give us a sense whether schools with a rating for one category tend to have a similar rating for other categories. That is, schools with high *Quality Review Rating* values might be expected to have high *Achievement Ratings*, and this plot will highlight whether expectations for these variables match reality for all possible buckets. 
+
+
+## Modeling
+
+
+
+## Further Work
+Below are some additional modeling points to consider for the final project, as well as to augment our dataset for our final project:
+
+- SAT Scores are not a perfect indicator of future academic [<Citation here>]. Using other response variables could paint a more complete picture on the educational variables that most impact outcomes
+- Include other educational outcome metrics (job placement rates on graduation, income by school) joined to our data
+- Fortunately, NYC's DBN (*District-Borough Number*) system allows for easier joining to other education datasets posted on NYC Open Data
+- Use a more recent dataset than 2013-2014. NYC Open Data is an excellent tool for this
+
+
+
+
+
+
+
+
