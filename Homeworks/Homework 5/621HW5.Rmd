@@ -1,0 +1,550 @@
+---
+title: "Homework-5"
+author: "Waheeb Algabri, Joe Garcia, Lwin Shwe, Mikhail Broomes"
+output:
+  html_document:
+    highlight: pygments
+    theme: cerulean
+    toc: true
+    toc_float: true
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+```
+
+## Introduction
+
+Data is the key to making informed decisions and achieving success in modern business. We'll begin our analysis by examining the dataset for outliers, missing data, potential encoding errors, multicollinearity etc., then, we'll implement any required data cleaning procedures. Once we've prepared a reliable dataset, we'll construct and assess three distinct linear models to forecast sales. Our dataset comprises both training and evaluation data; we'll train the models using the primary training dataset and then assess their performance against the separate evaluation dataset. Finally, we'll choose a best model that strikes the optimal balance between accuracy and simplicity.
+
+```{r, message=F, warning=F, echo=FALSE}
+library(MASS)
+library(rpart.plot)
+library(ggplot2)
+library(ggfortify)
+library(gridExtra)
+library(forecast)
+library(fpp2)
+library(fma)
+library(kableExtra)
+library(e1071)
+library(mlbench)
+library(ggcorrplot)
+library(DataExplorer)
+library(timeDate)
+library(caret)
+library(GGally)
+library(corrplot)
+library(RColorBrewer)
+library(tibble)
+library(tidyr)
+library(tidyverse)
+library(dplyr)
+library(reshape2)
+library(mixtools)
+library(tidymodels)
+library(ggpmisc)
+library(regclass)
+library(skimr)
+library(corrgram)
+library(mice)
+library(summarytools)
+#' Print a side-by-side Histogram and QQPlot of Residuals
+#'
+#' @param model A model
+#' @examples
+#' residPlot(myModel)
+#' @return null
+#' @export
+residPlot <- function(model) {
+  # Make sure a model was passed
+  if (is.null(model)) {
+    return
+  }
+  
+  layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+  plot(residuals(model))
+  hist(model[["residuals"]], freq = FALSE, breaks = "fd", main = "Residual Histogram",
+       xlab = "Residuals",col="lightgreen")
+  lines(density(model[["residuals"]], kernel = "ep"),col="blue", lwd=3)
+  curve(dnorm(x,mean=mean(model[["residuals"]]), sd=sd(model[["residuals"]])), col="red", lwd=3, lty="dotted", add=T)
+  qqnorm(model[["residuals"]], main = "Residual Q-Q plot")
+  qqline(model[["residuals"]],col="red", lwd=3, lty="dotted")
+  par(mfrow = c(1, 1))
+}
+#' Print a Variable Importance Plot for the provided model
+#'
+#' @param model The model
+#' @param chart_title The Title to show on the plot
+#' @examples
+#' variableImportancePlot(myLinearModel, 'My Title)
+#' @return null
+#' @export
+variableImportancePlot <- function(model=NULL, chart_title='Variable Importance Plot') {
+  # Make sure a model was passed
+  if (is.null(model)) {
+    return
+  }
+  
+  # use caret and gglot to print a variable importance plot
+  varImp(model) %>% as.data.frame() %>% 
+    ggplot(aes(x = reorder(rownames(.), desc(Overall)), y = Overall)) +
+    geom_col(aes(fill = Overall)) +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          axis.text.x = element_text(angle = 90)) +
+    scale_fill_gradient() +
+    labs(title = chart_title,
+         x = "Parameter",
+         y = "Relative Importance")
+}
+#' Print a Facet Chart of histograms
+#'
+#' @param df Dataset
+#' @param box Facet size (rows)
+#' @examples
+#' histbox(my_df, 3)
+#' @return null
+#' @export
+histbox <- function(df, box) {
+    par(mfrow = box)
+    ndf <- dimnames(df)[[2]]
+    
+    for (i in seq_along(ndf)) {
+            data <- na.omit(unlist(df[, i]))
+            hist(data, breaks = "fd", main = paste("Histogram of", ndf[i]),
+                 xlab = ndf[i], freq = FALSE)
+            lines(density(data, kernel = "ep"), col = 'red')
+    }
+    
+    par(mfrow = c(1, 1))
+}
+#' Extract key performance results from a model
+#'
+#' @param model A linear model of interest
+#' @examples
+#' model_performance_extraction(my_model)
+#' @return data.frame
+#' @export
+model_performance_extraction <- function(model=NULL) {
+  # Make sure a model was passed
+  if (is.null(model)) {
+    return
+  }
+  
+  data.frame("RSE" = model$sigma,
+             "Adj R2" = model$adj.r.squared,
+             "F-Statistic" = model$fstatistic[1])
+}
+```
+
+## Data Exploration
+
+```{r wine}
+train_df <- read.csv('https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework%205/wine-training-data.csv', header=T) %>% as.tibble()
+evaluate_df <- read.csv('https://raw.githubusercontent.com/waheeb123/Data-621/main/Homeworks/Homework%205/wine-evaluation-data.csv', header=T) %>% as.tibble()
+train_df$INDEX <- NULL # Remove index column
+evaluate_df$IN <- NULL
+#evaluate_df$TARGET <- NULL
+str(train_df)
+str(evaluate_df)
+```
+
+The training data set has 12,795 rows and 15 columns: 14 features and 1 response variable, TARGET. The variable `INDEX` is used for observed identification. Twelve of the features describe the chemical properties of wine. The remaining two predictors are rating variables: LabelAppeal refers to the perceived attractiveness of a wine's product label, while `STARS` is an assessment of wine quality. The output variable, `TARGET`, is a count measure indicating the number of wine case purchases by distributors.
+
+```{r statistics}
+library(vtable)
+st(train_df)
+```
+
+
+### Predictor Variables 
+
+Of the 14 feature columns, 8 of them such as `ResidualSugar`, `Chlorides`, `FreeSulfurDioxide`, `TotalSulfurDioxide`, `pH`, `Sulphates`, `Alcohol`, and `STARS` variables contain several missing values. `LabelAppeal`, `AcidIndex`, and `STARS` are discrete variables (i.e categorical) and the rest are continuous. 
+We also noticed that several numerical features representing chemical quantities in the wine exhibit negative minimum values. We hypothesize that the original chemical measurements might have been normalized (potentially via a log transform), allowing for negative values. However, from a physical standpoint, negative concentrations shouldn't be possible. Despite this, we've opted to retain these values as they are.
+ 
+
+### Response Variables
+
+```{r echo=FALSE}
+ggplot(train_df, aes(train_df$TARGET )) + geom_bar()
+```
+
+We see that the response variable, `TARGET` value is always between 0 and 8, which makes sense as this is the "Number of Cases of Wine Sold". In addition, the distribution of wine cases sold, given at least one sale, exhibits symmetry and approximates normality. The target variable, number of cases, is shown below.  The data shows a large number of zero values.
+
+
+### Variables Distributions
+
+```{r, fig.height = 10, fig.width = 10, echo=FALSE, warning=FALSE}
+# Histogram
+train_df %>% 
+  gather(key = 'key', value = 'value') %>%  # Include gather() to reshape the data
+  ggplot(aes(value)) +
+  facet_wrap(~key, scale = "free", ncol = 3) +
+  geom_histogram(binwidth = function(x) 2 * IQR(x) / (length(x)^(1/3)), fill = "#FF69B4") +
+  theme_minimal() +
+  theme(panel.grid = element_blank()) +
+  labs(title = "Histogram of Each Variable")
+
+
+```
+
+
+We observe that continuous variables exhibit a somewhat normal steep distribution. However, variables such as `AcidIndex` and `STARS` display right skewness. 
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Reshape the data using 'melt'
+melted_df <- melt(train_df)
+# Create the box plot
+ggplot(melted_df, aes(x = factor(variable), y = value)) + 
+  geom_boxplot() + 
+  stat_summary(fun.y = mean, color = "green", geom = "point") +  
+  stat_summary(fun.y = median, color = "red", geom = "point") +
+  coord_flip() +
+  theme_bw() +
+  labs(title = "Box Plot of Each Variable")
+
+```
+
+
+In the box plot, there are not many outliers in the variables. However, `TotalSulfurDioxide`, `FreeSulfurDioxide`, and `ResidualSugar` variables have large ranges compared to other variables.We can tell a high number of variables have numerous outliers.
+
+
+### Relationship Between Categorical and Response Variables 
+
+```{r echo=FALSE}
+#Create a bar chart for Discrete Variables 
+long <- melt(train_df, id.vars= colnames(train_df)[1:12])%>% 
+  mutate(target = as.factor(TARGET))
+
+ggplot(data = long, aes(x = value)) + 
+  geom_bar(aes(fill = target)) + 
+  facet_wrap( ~ variable, scales = "free")
+```
+
+The bar charts compare the three discrete categorical variables to the `TARGET` variable. `AcidIndex` shows large quantity of wine were sold with the index number 7 and 8. `LabelAppeal` shows us generic label does yield higher number of wine samples per order. Lastly, `STARS` shows high star wine bottles have high price tags. For each of these predictors, there appears to be a significant relationship between the ordered levels and the number of wine cases sold.
+
+
+
+### Multicolinearity
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Compute correlation matrix
+corr_matrix <- cor(drop_na(train_df))
+
+# Extract correlations with the target variable
+target_correlation <- corr_matrix[, "TARGET"]
+
+# Display correlation table
+knitr::kable(target_correlation, "html", escape = FALSE) %>%
+  kableExtra::kable_styling("striped", full_width = FALSE) %>%
+  kableExtra::column_spec(1, bold = TRUE) %>%
+  kableExtra::scroll_box(height = "500px")
+
+corrgram(drop_na(train_df), order=TRUE,
+         upper.panel=panel.cor, main="Correlation Plot")
+
+```
+
+
+In the correlation table, we can see that `STARS` and `LabelAppeal` are most positively correlated variables with the response variable. Also, we some mild negative correlation between the response variable and `AcidIndex` variable.
+
+
+## Data Preparation
+
+
+### Negative Values
+
+The data has some wine quality measures that are negative that should not be.   We will simply take the absolute value of these for now.   The alternative would be to center by adding the min of each variable.   Since we are given little information about the source of this dataset, and why these quality measures are so off, it is difficult to ascertain the best overall approach. For `LabelAppeal`, we will add the min. 
+
+
+```{r}
+train_df$FixedAcidity <- abs(train_df$FixedAcidity)
+evaluate_df$FixedAcidity <- abs(evaluate_df$FixedAcidity)
+
+train_df$VolatileAcidity <- abs(train_df$VolatileAcidity)
+evaluate_df$VolatileAcidity <- abs(evaluate_df$VolatileAcidity)
+
+train_df$CitricAcid <- abs(train_df$CitricAcid)
+evaluate_df$CitricAcid <- abs(evaluate_df$CitricAcid)
+
+train_df$ResidualSugar <- abs(train_df$ResidualSugar)
+evaluate_df$ResidualSugar <- abs(evaluate_df$ResidualSugar)
+
+train_df$Chlorides <- abs(train_df$Chlorides)
+evaluate_df$Chlorides <- abs(evaluate_df$Chlorides)
+
+train_df$FreeSulfurDioxide <- abs(train_df$FreeSulfurDioxide)
+evaluate_df$FreeSulfurDioxide <- abs(evaluate_df$FreeSulfurDioxide)
+
+train_df$TotalSulfurDioxide <- abs(train_df$TotalSulfurDioxide)
+evaluate_df$TotalSulfurDioxide <- abs(evaluate_df$TotalSulfurDioxide)
+
+train_df$Sulphates <- abs(train_df$Sulphates)
+evaluate_df$Sulphates <- abs(evaluate_df$Sulphates)
+
+train_df$LabelAppeal <- train_df$LabelAppeal + abs(min(train_df$LabelAppeal))
+evaluate_df$LabelAppeal <- evaluate_df$LabelAppeal + abs(min(evaluate_df$LabelAppeal))
+```
+
+
+
+### Missing Data
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#Identify missing data by Feature and display percent breakout
+plot_missing(train_df)
+```
+
+
+According to the graph, the data set has multiple variables with missing variables.  The `STARS` variable has the most NA values.  The `Sulphates` variable records missing values in roughly 10% of observations, while the remaining six predictors have missing values ranging from 3% to 5%. These missing values will be imputed later on during the data preparation using the MICE package and random forest prediction method. 
+
+
+```{r missing-values}
+train_df$STARS[is.na(train_df$STARS)] <- 0
+evaluate_df$STARS[is.na(evaluate_df$STARS)] <- 0
+# Perform multiple imputation
+mice_imputes <- mice(train_df, m = 2, maxit = 2, print = FALSE)
+# Visualize the imputed values with density plot
+densityplot(mice_imputes)
+```
+
+We can see that each of the remaining variables with missing values seem to be MAR, as the mice imputation distributions roughly match the existing.   We'll also run the mice imputation again on both the train and test set.   Instead of using it for our models, however, we'll simplify our run and fill in our data. Finally, after our analysis, we can use it in in our model, we'll update STARS to become a factor variable. 
+
+
+```{r evaluate-df}
+mice_train <-  mice(train_df, m = 1, maxit = 1, print = FALSE)
+cleaned_train <- complete(mice_train)
+
+mice_evaluate <- mice(evaluate_df, m = 1, maxit = 1, print = FALSE)
+cleaned_evaluate <- complete(mice_evaluate)
+
+cleaned_train$STARS <- as.factor(cleaned_train$STARS)
+cleaned_evaluate$STARS <- as.factor(cleaned_evaluate$STARS)
+```
+
+
+### Descriptive Summaries and Correlation Review
+
+
+```{r fig.height = 10, fig.width = 10, echo=FALSE, warning=FALSE}
+plot_histogram(cleaned_train, title = "Revised Histogram of Cleaned Training Data")
+
+```
+
+
+```{r review}
+# Create a summary table
+summary_table <- descr(cleaned_train)
+
+# Transpose the summary table
+transposed_summary_table <- t(summary_table)
+
+# Display transposed summary table as an HTML table
+knitr::kable(transposed_summary_table, "html", escape = FALSE) %>%
+  kableExtra::kable_styling("striped", full_width = FALSE) %>%
+  kableExtra::column_spec(1, bold = TRUE) %>%
+  kableExtra::scroll_box(height = "500px")
+
+corrgram(drop_na(cleaned_train), order=TRUE,
+         upper.panel=panel.cor, main="Revised Correlation")
+```
+
+
+### Split the Sample data Set
+
+With our transformations complete, we can now add these into our `cleaned_train` dataframe and continue on to build our models.  To better measure each model performance, we split our data into a training and testing data set.  We will train using the first, then measure model performance again the testing hold out set.
+
+```{r echo=F}
+options(scipen = 999)
+
+# Get training/test split
+y_raw <- as.matrix(cleaned_train$TARGET)
+trainingRows <- createDataPartition(y_raw, p=0.8, list=FALSE)
+
+# Build training data sets
+trainX <- cleaned_train[trainingRows,] %>% select(-TARGET)
+trainY <- cleaned_train[trainingRows,] %>% select(TARGET)
+
+# Build testing data set
+testX <- cleaned_train[-trainingRows,] %>% select(-TARGET)
+testY <- cleaned_train[-trainingRows,] %>% select(TARGET)
+
+# Build a DF
+trainingData <- as.data.frame(trainX)
+trainingData$TARGET <- trainY$TARGET
+print(paste('Number of Training Samples: ', dim(trainingData)[1]))
+
+testingData <- as.data.frame(testX)
+testingData$TARGET <- testY$TARGET
+print(paste('Number of Testing Samples: ', dim(testingData)[1]))
+
+model_test_perf <- function(model, trainX, trainY, testX, testY) {
+  # Evaluate Model 1 with testing data set
+  predictedY <- predict(model, newdata=trainX)
+
+  model_results <- data.frame(obs = trainY, pred=predictedY)
+  colnames(model_results) = c('obs', 'pred')
+  
+  # This grabs RMSE, Rsquaredand MAE by default
+  model_eval <- defaultSummary(model_results)
+  
+  # Add AIC score to the results
+  if ('aic' %in% model) {
+    model_eval[4] <- model$aic
+  } else {
+    model_eval[4] <- AIC(model)
+  }
+  
+  names(model_eval)[4] <- 'aic'
+ 
+  # Add BIC score to the results
+  model_eval[5] <- BIC(model)
+  names(model_eval)[5] <- 'bic'
+
+   
+  return(model_eval)
+}
+```
+
+## Build Models
+
+
+### Poisson Regression Model 1
+
+In this first model, we include all available features: `FixedAcidity`, `VolatileAcidity`, `CitricAcid`, `ResidualSugar`, `Chlorides`, `FreeSulfurDioxide`, `TotalSulfurDioxide`, `Density`, `pH`, `Sulphates`, `Alcohol`, `LabelAppeal`, `AcidIndex`, `STARS`
+
+```{r echo=F}
+options(scipen = 999)
+
+Poission_Model1 <- glm(TARGET ~ ., data = trainingData, family = poisson)
+
+summary(Poission_Model1)
+
+# Evaluate Model 1 with testing data set
+(Poission_Evaluate1 <- model_test_perf(Poission_Model1, trainX, trainY, testX, testY))
+```
+
+
+### Poisson Regression Model 2
+
+In this Model 2, we only include the most predictive features : `VolatileAcidity`, `TotalSulfurDioxide`, `Alcohol`, `LabelAppeal`, `AcidIndex`, `STARS`
+
+```{r echo=F}
+
+Poission_Model2 <- glm(TARGET ~  VolatileAcidity + TotalSulfurDioxide + Alcohol + LabelAppeal + AcidIndex + STARS, data = trainingData, family = poisson)
+
+summary(Poission_Model2)
+
+# Evaluate Model 2 with testing data set
+(Poission_Evaluate2 <- model_test_perf(Poission_Model2, trainX, trainY, testX, testY))
+
+```
+
+
+### Negative Binomial Regression Model 3
+
+Similar to Poisson Model 1, the predictors for the following model are: `FixedAcidity`, `VolatileAcidity`, `CitricAcid`, `ResidualSugar`, `Chlorides`, `FreeSulfurDioxide`, `TotalSulfurDioxide`, `Density`, `pH`, `Sulphates`, `Alcohol`, `LabelAppeal`, `AcidIndex`, `STARS`
+
+```{r echo=F}
+nb3 <- glm.nb(TARGET ~ ., data = trainingData)
+summary(nb3)
+
+# Evaluate Model 1 with testing data set
+(Negative_Binomial_eval3 <- model_test_perf(nb3, trainX, trainY, testX, testY))
+
+```
+
+
+### Negative Binomial Regression Model 4
+
+Similar to Poisson Model 2, the predictors for the following model are: `VolatileAcidity`, `FreeSulfurDioxide`, `TotalSulfurDioxide`, `Alcohol`, `LabelAppeal`, `AcidIndex`, `STARS`
+
+```{r echo=F}
+
+nb4 <- glm.nb(TARGET~ VolatileAcidity + FreeSulfurDioxide + TotalSulfurDioxide + Alcohol + LabelAppeal + AcidIndex + STARS,  data=cleaned_train)
+
+summary (nb4)
+
+# Evaluate Model 1 with testing data set
+(Negative_Binomial_eval4 <- model_test_perf(nb4, trainX, trainY, testX, testY))
+
+```
+
+### Multiple Linear Regression Model 5
+
+The predictors for the following model are: `FixedAcidity`, `VolatileAcidity`, `CitricAcid`, `ResidualSugar`, `Chlorides`, `FreeSulfurDioxide`, `TotalSulfurDioxide`, `Density`, `pH`, `Sulphates`, `Alcohol`, `LabelAppeal`, `AcidIndex`, `STARS`
+
+```{r echo=FALSE}
+lm5 <- lm(TARGET ~ ., data = trainingData)
+summary(lm5)
+
+# Evaluate Model 1 with testing data set
+(Linear_Regression_eval5 <- model_test_perf(lm5, trainX, trainY, testX, testY))
+
+```
+
+### Multiple Linear Regression Model 6
+
+For the final Linear Model, we leverage `stepAIC` on our Linear Model 5 to choose the most important features.
+
+```{r echo=FALSE}
+lm6 <- stepAIC(lm5, direction = "both",
+               scope = list(upper = lm5, lower = ~ 1),
+               scale = 0, trace = FALSE)
+
+summary(lm6)
+
+# Evaluate Model 1 with testing data set
+(Linear_Regression_eval6 <- model_test_perf(lm6, trainX, trainY, testX, testY))
+
+```
+
+
+## Select Models
+
+```{r echo=F}
+models_summary <- rbind(Poission_Evaluate1, Poission_Evaluate2, Negative_Binomial_eval3, Negative_Binomial_eval4, Linear_Regression_eval5, Linear_Regression_eval6)
+
+kable(models_summary) %>% 
+  kable_styling(bootstrap_options = "basic", position = "center")
+
+```
+
+This table summarizes the **RMSE**, **RSQUARED**, **MAE**, **AIC** and **BIC** for all SIX models. The Linear regressions (**Linear Model 5** and **Linear Model 6**) had the overall best performance based on **RMSE** and **RSQUARED**; as well as **Linear Model 6** had the best performance based on **AIC** and **BIC**.
+
+Finally, we chose **Multiple Linear Regression Model 6** as our final model since it had a far lower **AIC** and **BIC**.
+
+
+
+### Prediction
+
+
+```{r prediction}
+eval_data <- cleaned_evaluate %>% select(-TARGET)
+predictions <- predict(lm6, eval_data)
+
+eval_data$TARGET <- predictions
+
+hist(predictions)
+
+write.csv(eval_data, 'DATA621_HW5_Predictions.csv', row.names=FALSE)
+
+head(eval_data)
+```
+
+The histogram shows that our predictions have a similar shape to our training Target variable, the means and medians are almost identical, and the kurtosis values are close.
+
+The predicted file is uploaded to Github: https://github.com/waheeb123/Data-621/blob/main/Homeworks/Homework%205/DATA621_HW5_Predictions.csv
+
+
+## Conclusions
+
+The Linear Regression model that we chose as the best model has an adjusted R2 value of 0.53. All predictors and levels within each categorical predictor are significant at the 5% level. The model coefficients make intuitive sense. Sales of wine decrease with each increase in the `AcidIndex` value. Having a `STARS` rating results in more sales compared to no ratings, and higher STARS ratings are associated with higher sales. Finally, increases in alcohol content are associated with higher sales.The interpretation of the coefficients aligns with the insights gained during exploratory data analysis. 
+
+
+
