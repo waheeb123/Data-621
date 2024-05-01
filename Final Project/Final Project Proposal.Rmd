@@ -73,6 +73,36 @@ Our response variable will be the average student's SAT Score at a given school.
 
 First, let's plot the counts of different rating combinations by school. This should give us a sense if schools with one rating for a given bucket tend to have similar ratings for other categories (i.e., schools with high *Quality Review Rating* values tend to have high *Achievement Ratings* as well).
 
+|`survey_pp_RI`|Rigorous Instruction - Percent Positive|
+|`survey_pp_CT`|Collaborative Teachers - Percent Positive|
+|`survey_pp_SE`|Supportive Environment - Percent Positive|
+|`survey_pp_ES`|Effective School Leadership - Percent Positive|
+|`survey_pp_SF`|Strong Family-Community Ties - Percent Positive|
+|`survey_pp_TR`|Trust - Percent Positive|
+|`QR_1_1`|Quality Review - How interesting and challenging is the curriculum?|
+|`QR_1_2`|Quality Review - How effective is the teaching and learning?|
+|`QR_2_2`|Quality Review - How well does the school assess what students are learning?|
+|`QR_3_4`|Quality Review - How clearly are high expectations communicated to students and staff?|
+|`QR_4_2`|Quality Review - How well do teachers work with each other?|
+|`QR_1_4`|Quality Review - How safe and inclusive is the school while supporting social-emotional growth?|
+|`QR_1_3`|Quality Review - How well does the school allocate and manage resources?|
+|`QR_3_1`|Quality Review - How well does the school identify, track, and meet its goals?|
+|`QR_4_1`|Quality Review - How thoughtful is the school’s approach to teacher development and evaluation?|
+|`QR_5_1`|Quality Review - How well are school decisions evaluated and adjusted?|
+|`n_nocat_cri_4yr_all`|N Count - 4-Year College Readiness Index (without CAT)|
+|`val_nocat_cri_4yr_all`|Metric Value - 4-Year College Readiness Index (without CAT)|
+|n_mean_score_act_engl_all|N Count - Average Score ACT English|
+|val_mean_score_act_engl_all|	Metric Value - Average score of students in the current cohort who took the ACT English exam|
+|`n_mean_score_act_math_all`|	N Count - Average Score ACT Math|
+|`val_mean_score_act_math_all`|	Metric Value - Average score of students in the current cohort who took the ACT Math exam|
+|`n_mean_score_act_read_all`|	N Count - Average Score ACT Reading|
+|`val_mean_score_act_read_all`|	Metric Value - Average score of students in the current cohort who took the ACT Reading exam|
+|`n_mean_score_act_scie_all`|	N Count - Average Score ACT Science|
+|`val_mean_score_act_scie_all`|	Metric Value - Average score of students in the current cohort who took the ACT Science exam|
+|`n_mean_score_sat_math_all`|	N Count - Average Score SAT Math|
+|`val_mean_score_sat_math_all`|	Metric Value - Average score of students in the current cohort who took the SAT Math exam|
+|`n_mean_score_sat_writ_all`|	N Count - Average Score SAT Writing|
+|`val_mean_score_sat_writ_all`|	Metric Value - Average score of students in the current cohort who took the SAT Reading and Writing exam|
 
 ## Exploratory Data Analysis:
 
