@@ -1,5 +1,5 @@
 ---
-title: "final project proposal"
+title: "final project"
 author: "Waheeb Algabri, Joe Garcia, Lwin Shwe, Mikhail Broomes"
 output:
   html_document:
