@@ -30,6 +30,11 @@ library(car)
 library(AICcmodavg)
 ```
 
+## Abstract
+
+We present a research investigation into the efficacy of the New York City School Quality Snapshot in forecasting the four-year college persistence rate among high schools in New York City. These evaluations play a pivotal role in shaping educational policies nationwide. While insights from educators and families are invaluable, they often fail to capture the fundamental factors that have the greatest impact on academic achievement. Furthermore, we construct a predictive framework based on proxy socioeconomic indicators (such as residence in temporary housing and economic necessity) to forecast the average college persistence rate of high schools in NYC. Our socioeconomic-based model surpasses a model reliant solely on data from the school quality snapshot, which includes input from students, parents, and educators within NYC's public school system. This enhanced performance is evident across various diagnostic metrics, including root mean squared error, Akaike and Bayesian Information Criteria, and adjusted R-squared values. Additionally, we develop a weighted least squares model using the same set of proxy variables to compare modeling methodologies. While this model outperforms the linear model based on ratings, it introduces added complexity, resulting in reduced explainability compared to the direct use of proxy variables.
+
+
 ## Introduction:
 
 Our final project aims to analyze the predictive power of Department of Education (DOE) ratings on the academic performance of New York City (NYC) high schools. Leveraging data from [OpenData's - School Quality Report](https://data.cityofnewyork.us/Education/2020-2021-School-Quality-Reports-High-School/26je-vkp6/about_data) for NYC high schools between 2020 and 2021. Our final project will potentially include more up-to-date educational information and geographic data to augment our analysis.
@@ -64,7 +69,16 @@ It is well-established that attending 4-year institutions significantly enhances
 
 # Literature Review
 
-still searching ....
+A significant determinant of academic achievement is a student's socioeconomic status. The National Center for Education Statistics (NCES) reports that students hailing from low-income households are almost four times as likely to discontinue their high school education compared to their affluent counterparts. [NCES](https://nces.ed.gov/programs/coe/indicator/coj/status-dropout-rates). 
+
+Several prior studies have made attempts to use more sophisticated modeling techniques, different data sources, and different predictor variables to predict educational outcomes similar to what we're trying to predict. In one such study,[Bernacki, Chavez and Uesbeck](https://www.sciencedirect.com/science/article/abs/pii/S0360131520301974)  based their modeling on trying to predict educational achievement based on student digital behavior, rather than the social factors we intend to explore. The model in this study reached an accuracy of 75%, and was able to flag early interventions. This modeling technique attempts to predict a slightly different metric of student success than our modeling will, and the training data and predictor variables differ as well.
+
+Similarly, [Musso, Cascallar, Bostani, and, Crawford](https://www.frontiersin.org/articles/10.3389/feduc.2020.00104/full) attempted to train an artificial neural network (ANN) to identify relationships between variables and educational performance data. They modeled educational performance of Vietnamese students in grade five and included individual characteristics as well as information related to daily routines in their training data. This method uses a more sophisticated model, and resulted in an impressive prediction accuracy of $95-100%$. However, as their training data comes from a different country with a different educational system and methods, it may not be prudent to compare the model's results to those of our model or of any other US-centric study.
+
+In another study, a group of friends as you can see here [Final grades](https://www.mdpi.com/2227-7390/10/20/3758) predicted final grade exams for Turkish students through machine learning models, using prior exam scores as their input variables.The logistic regression model is utilized to assess the actual impact of event context on “Fail” students in a multivariate setup. Four machine learning algorithms (Random Forest, XGBoost, KNN, and SVM) are applied using 70% of training data and 30% of test data to predict the students’ final grades.
+The findings of the study clearly show that the Random Forest algorithm may be used to predict which students will fail after eight weeks. Such data-driven predictions are significant for teachers and decision-makers and allow them to take measures to reduce the number of failed students and identify which types of learning resources or student activities are better predictors of the student’s academic performance.
+
+
 
 
 # Methodology
